@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>汎用カウンター for わんコメ</title>
+<!--
+  汎用カウンターツール（わんコメ / OneComme カスタムテンプレート）
+  ・配布時の注意：わんコメSDK（onesdk.js）の利用規約に従い、
+    SDKのライセンス・著作権表記を削除・改変せずそのまま保持してください。
+    本ファイルを配布する場合も、この注意書きを残してください。
+  ・設定の変更箇所は <script> 冒頭の CONFIG にまとめています。
+  ・色は :root のCSS変数で一括変更できます。
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* ===== 色の設定（ここを変えると全体の色が変わります） ===== */
+  --bg:#fff7f0;          /* 表示エリアの背景 */
+  --card:#ffffff;        /* カウンター行の背景 */
+  --accent:#ff7a9c;      /* 合計値・強調色 */
+  --accent-sub:#ffd3df;  /* 枠線・淡い強調 */
+  --text:#4a3a3f;        /* 基本の文字色 */
+  --sub:#9b8a8f;         /* 補足の文字色 */
+  --panel:#2b2b33;       /* 操作エリアの背景 */
+  --panel-text:#f3f0f2;  /* 操作エリアの文字色 */
+  --ok:#3fc380;
+  --ng:#e8636f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  width:1920px;height:1080px;overflow:hidden;position:relative;
+  font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Yu Gothic UI","Meiryo",sans-serif;
+  color:var(--text);background:transparent;
+}
+/* ---------- 左：表示エリア（OBSでここだけクロップして映す） ---------- */
+#view{
+  position:absolute;left:0;top:0;width:850px;height:1080px;
+  background:var(--bg);padding:50px 50px;
+  display:flex;flex-direction:column;justify-content:center;gap:28px;
+}
+#view.framed{border:10px solid var(--accent-sub);border-radius:56px}
+#vTitle{font-size:56px;font-weight:800;color:var(--sub);text-align:center;letter-spacing:.1em;
+  /* ふち取りの太さ（口の中まで塗りつぶすため太め。細くしたい場合は数値を下げる） */
+  paint-order:stroke fill;-webkit-text-stroke:22px var(--title-outline,transparent)}
+#vTotalBox{text-align:center;line-height:1;white-space:nowrap}
+#vTotal{font-size:220px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;
+  text-shadow:0 6px 0 var(--accent-sub)}
+#vUnit{font-size:84px;font-weight:800;color:var(--accent);margin-left:14px}
+#vRows{display:flex;flex-direction:column;gap:16px;margin-top:10px}
+.row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--card);border:4px solid var(--accent-sub);border-radius:32px;
+  padding:18px 36px;font-size:46px;font-weight:800;
+}
+.row .n{color:var(--text)}
+.row .c{color:var(--accent);font-variant-numeric:tabular-nums}
+.row .c small{font-size:30px;color:var(--text);opacity:.6;margin-left:12px;font-weight:500}
+/* ---------- 右：操作エリア（クロップで映らない） ---------- */
+#ctrl{
+  position:absolute;left:900px;top:0;width:1020px;height:1080px;overflow-y:auto;
+  background:var(--panel);color:var(--panel-text);padding:24px 32px;font-size:18px;
+}
+#ctrl h2{font-size:20px;margin:18px 0 8px;border-bottom:2px solid #444;padding-bottom:4px}
+#ctrl .line{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}
+#ctrl label{min-width:150px}
+#ctrl input[type=number],#ctrl input[type=text],#ctrl select{
+  background:#1d1d23;color:var(--panel-text);border:1px solid #555;border-radius:8px;
+  padding:6px 10px;font:inherit;font-size:17px
+}
+#ctrl input[type=number]{width:100px}
+#ctrl input[type=text].wide{width:520px}
+#ctrl button{
+  background:#4a4a58;color:var(--panel-text);border:0;border-radius:8px;
+  padding:7px 14px;font:inherit;font-size:17px;cursor:pointer
+}
+#ctrl button:hover{background:#5d5d70}
+#ctrl button.danger{background:#9c3a44}
+#status{display:inline-block;padding:3px 12px;border-radius:99px;font-weight:800}
+#status.ok{background:var(--ok);color:#10281c}
+#status.ng{background:var(--ng);color:#2b0d10}
+#status.demo{background:#e6b84d;color:#2e2308}
+#demoBox{display:none}
+#debugOut{
+  display:none;background:#14141a;border-radius:8px;padding:10px;margin-top:8px;
+  height:240px;overflow:auto;font:13px/1.4 Consolas,monospace;white-space:pre-wrap;word-break:break-all
+}
+.note{color:#b8b0b4;font-size:15px}
+#ctrl button.tg{background:#3a3a46}
+#ctrl button.tg.on{background:var(--ok);color:#10281c;font-weight:800}
+</style>
+</head>
+<body>
+
+<!-- ============ 左：表示エリア ============ -->
+<div id="view">
+  <div id="vTitle">合計</div>
+  <div id="vTotalBox"><span id="vTotal">0</span><span id="vUnit">歩</span></div>
+  <div id="vRows"></div>
+</div>
+
+<!-- ============ 右：操作エリア ============ -->
+<div id="ctrl">
+  <div class="line">
+    <b style="font-size:22px">操作パネル</b>
+    <span id="status" class="ng">未接続</span>
+  </div>
+
+  <h2>表示</h2>
+  <div class="line"><label>合計の見出し文</label><input type="text" id="inTitle"></div>
+  <div class="line"><label>単位ラベル</label><input type="text" id="inUnit" style="width:120px"><span class="note">例：歩 / 回 / 個 / pt / 円 / 秒</span></div>
+  <h2>カウンターのON/OFF（OFFは集計・表示・合計から外れます）</h2>
+  <div class="line" id="togBox"></div>
+
+  <h2>倍率（合計 ＝ Σ カウント × 倍率）</h2>
+  <div id="multBox"></div>
+
+  <h2>カウント判定</h2>
+  <div class="line"><label>挨拶の判定方式</label><span class="note">ボタンで選択</span></div>
+  <div class="line" id="modeBox" style="flex-direction:column;align-items:flex-start"></div>
+  <div class="line"><label>挨拶ワード（C用）</label><input type="text" id="inGreetWords" class="wide"></div>
+  <div class="line"><label>フォロー判定キーワード</label><input type="text" id="inFollowKw" style="width:220px"></div>
+
+  <h2>手動補正（接続切れ・取りこぼし対策）</h2>
+  <div id="adjBox"></div>
+
+  <h2>フォロワー数の差分入力</h2>
+  <div class="line">
+    <label>開始時フォロワー数</label><input type="number" id="inFStart" min="0">
+    <label style="min-width:auto">現在数</label><input type="number" id="inFNow" min="0">
+    <button id="btnDiff">差分をフォロー数に反映</button>
+  </div>
+
+  <h2>色の設定</h2>
+  <div id="colorBox"></div>
+  <p class="note">テーマボタンを押すと全体の色がまとめて変わります。</p>
+
+  <h2>その他</h2>
+  <div class="line">
+    <button id="btnReset" class="danger">全リセット</button>
+    <button id="btnDebug">デバッグ表示 ON/OFF</button>
+  </div>
+  <div id="debugOut"></div>
+
+  <div id="demoBox">
+    <h2>デモモード（SDK未接続）</h2>
+    <div class="line">
+      <button data-demo="greet">挨拶コメントを流す</button>
+      <button data-demo="first">初コメ（isFirstTime）を流す</button>
+      <button data-demo="normal">通常コメントを流す</button>
+      <button data-demo="follow">フォロー通知を流す</button>
+    </div>
+  </div>
+  <p class="note">※この右側はOBSでクロップして映さないでください。</p>
+</div>
+
+<script>
+/* =====================================================================
+   設定（ここを編集すると名前・初期値などをまとめて変更できます）
+   ===================================================================== */
+const CONFIG = {
+  storageKey: "onecomme-generic-counter-v1",
+  sdkUrl: "http://localhost:11180/templates/preset/__origin/js/onesdk.js",
+  // カウンター名（表示・操作パネル共通）
+  names: { greet: "挨拶", follow: "新規フォロー", comment: "コメント" },
+  // 初期値
+  defaults: {
+    mult: { greet: 10, follow: 10, comment: 0 },
+    title: "合計",
+    unit: "歩",
+    greetMode: "A",
+    greetWords: "こんばんは,こんにちは,おはよう,初めまして,hello",
+    followKeyword: "フォロー",
+    enabled: { greet: true, follow: true, comment: true },  // 各カウンターのON/OFF初期値
+    transparentBg: false,
+    frame: false,   // 全体の枠（初期値：なし）
+    colors: {   // 色の初期値
+      bg: "#fff7f0", card: "#ffffff", accent: "#ff7a9c",
+      accentSub: "#ffd3df", text: "#4a3a3f", sub: "#9b8a8f"
+    }
+  },
+  maxIds: 5000   // 保存する重複排除用IDの上限
+};
+
+/* ---------------- 状態 ---------------- */
+const KEYS = ["greet", "follow", "comment"];
+const $ = s => document.querySelector(s);
+let state = load();
+const seenIds = new Set(state.seenIds);
+const seenToday = new Set(state.seenToday);
+const followed = new Set(state.followed);
+let demoMode = false;
+
+function freshState() {
+  const d = CONFIG.defaults;
+  return {
+    counts: { greet: 0, follow: 0, comment: 0 },
+    mult: { ...d.mult }, title: d.title, unit: d.unit,
+    greetMode: d.greetMode, greetWords: d.greetWords,
+    followKeyword: d.followKeyword, enabled: { ...d.enabled }, colors: { ...d.colors }, transparentBg: d.transparentBg, frame: d.frame,
+    fStart: "", fNow: "", day: "", seenIds: [], seenToday: [], followed: []
+  };
+}
+function load() {
+  const base = freshState();
+  try {
+    const s = JSON.parse(localStorage.getItem(CONFIG.storageKey) || "null");
+    if (s) {
+      const en = { ...base.enabled, ...(s.enabled || {}) };
+      if (s.enabled === undefined && s.showComment === false) en.comment = false;
+      return { ...base, ...s, counts: { ...base.counts, ...s.counts }, mult: { ...base.mult, ...s.mult },
+               enabled: en, colors: { ...base.colors, ...(s.colors || {}) } };
+    }
+  } catch (e) {}
+  return base;
+}
+function save() {
+  state.seenIds = [...seenIds].slice(-CONFIG.maxIds);
+  state.seenToday = [...seenToday];
+  state.followed = [...followed];
+  try { localStorage.setItem(CONFIG.storageKey, JSON.stringify(state)); } catch (e) {}
+}
+function today() {
+  const d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+}
+
+/* ---------------- 描画 ---------------- */
+const fmt = n => Number(n).toLocaleString("ja-JP");
+function total() { return KEYS.filter(k => state.enabled[k]).reduce((a, k) => a + state.counts[k] * state.mult[k], 0); }
+function render() {
+  $("#vTitle").textContent = state.title;
+  $("#vTotal").textContent = fmt(total());
+  $("#vUnit").textContent = state.unit;
+  $("#vRows").innerHTML = KEYS
+    .filter(k => state.enabled[k])
+    .map(k => `<div class="row"><span class="n">${CONFIG.names[k]}</span>
+      <span class="c">${fmt(state.counts[k])}<small>× ${state.mult[k]}</small></span></div>`).join("");
+  KEYS.forEach(k => { const e = $("#cnt_" + k); if (e) e.textContent = fmt(state.counts[k]); });
+}
+
+/* ---------------- カウント処理 ---------------- */
+const debugLines = [];
+function debugLog(obj) {
+  debugLines.unshift(JSON.stringify(obj, null, 1));
+  debugLines.length = Math.min(debugLines.length, 20);
+  $("#debugOut").textContent = debugLines.join("\n----------\n");
+}
+function handle(item, fromSystemAction) {
+  const d = item && item.data ? item.data : item;
+  if (!d) return;
+  const isSys = !!fromSystemAction || (d.meta && d.meta.type === "system");
+  if (isSys) debugLog(item);
+
+  const id = String(d.id ?? (item && item.id) ?? "");
+  if (id) { if (seenIds.has(id)) return; seenIds.add(id); }   // ID重複排除
+  const text = String(d.comment ?? "");
+
+  if (isSys) {
+    const kw = state.followKeyword.trim();
+    if (state.enabled.follow && kw && text.includes(kw)) {
+      const uid = d.userId;
+      if (uid) { if (followed.has(uid)) { save(); return; } followed.add(uid); }
+      state.counts.follow++;
+    }
+    save(); render(); return;
+  }
+
+  if (state.enabled.comment) state.counts.comment++;
+  if (state.day !== today()) { state.day = today(); seenToday.clear(); }  // 日付が変われば挨拶判定をリセット
+  const key = d.userId || d.name;
+  if (state.enabled.greet && key && !seenToday.has(key)) {
+    seenToday.add(key);
+    let ok = false;
+    if (state.greetMode === "A") ok = true;
+    else if (state.greetMode === "B") ok = d.isFirstTime === true;
+    else {
+      const words = state.greetWords.split(",").map(s => s.trim()).filter(Boolean);
+      ok = words.some(w => text.toLowerCase().includes(w.toLowerCase()));
+    }
+    if (ok) state.counts.greet++;
+  }
+  save(); render();
+}
+
+/* ---------------- 操作パネルの生成 ---------------- */
+$("#multBox").innerHTML = KEYS.map(k =>
+  `<div class="line"><label>${CONFIG.names[k]}の倍率 ×</label><input type="number" min="0" step="1" data-mult="${k}"></div>`).join("");
+$("#adjBox").innerHTML = KEYS.map(k =>
+  `<div class="line"><label>${CONFIG.names[k]}</label>
+    <button data-adj="${k}" data-v="-1">−1</button>
+    <b id="cnt_${k}" style="min-width:70px;text-align:center">0</b>
+    <button data-adj="${k}" data-v="1">＋1</button></div>`).join("");
+
+/* ---- ON/OFF・判定方式（ボタン式）・色 ---- */
+const MODES = [["A", "本日初コメントの全員"], ["B", "初コメ（isFirstTime）の人のみ"], ["C", "挨拶ワードを含む初コメント"]];
+const CSS_VARS = { bg: "--bg", card: "--card", accent: "--accent", accentSub: "--accent-sub", text: "--text", sub: "--sub", titleOutline: "--title-outline" };
+const THEMES = {
+  "ピンク": { ...CONFIG.defaults.colors },
+  "ブルー": { bg: "#eef7ff", card: "#ffffff", accent: "#3d8bfd", accentSub: "#cfe4ff", text: "#2f3e52", sub: "#7a8aa0" },
+  "ミント": { bg: "#effaf4", card: "#ffffff", accent: "#2fbf8a", accentSub: "#c9efdf", text: "#33463d", sub: "#82978d" },
+  "ダーク": { bg: "#1e1e26", card: "#2c2c38", accent: "#ffd54a", accentSub: "#44445a", text: "#f2f2f5", sub: "#a6a6b8" },
+  "パープル": { bg: "#f4eeff", card: "#ffffff", accent: "#8e5cf0", accentSub: "#dccbff", text: "#3d2f5c", sub: "#8f82ab" },
+  "レッド": { bg: "#fff1f0", card: "#ffffff", accent: "#e63946", accentSub: "#ffcfd2", text: "#4a2a2c", sub: "#a08285" },
+  "モノクロ": { bg: "#f2f2f2", card: "#ffffff", accent: "#222222", accentSub: "#cfcfcf", text: "#333333", sub: "#888888" },
+  "宇宙猫": { bg: "#fff0f8", card: "#fffef4", accent: "#ff62c9", accentSub: "#b47eff", text: "#3d3da5", sub: "#ffff4a", titleOutline: "#3d3da5" },
+  "グリーンバック": { bg: "#00b140", card: "#ffffff", accent: "#ff5c8a", accentSub: "#ffd0dc", text: "#3a3a3a", sub: "#0b5a26" }
+};
+$("#togBox").innerHTML = KEYS.map(k => `<button class="tg" data-tog="${k}"></button>`).join("");
+$("#modeBox").innerHTML = MODES.map(([v, t]) => `<button class="tg" data-mode="${v}">${v}: ${t}</button>`).join("");
+$("#colorBox").innerHTML =
+  `<div class="line">${Object.keys(THEMES).map(n => `<button class="tg" data-theme="${n}">${n}</button>`).join("")}</div>` +
+  `<div class="line"><button class="tg" id="btnFrame"></button><button class="tg" id="btnTransp"></button></div>`;
+
+function applyColors() {
+  for (const k in CSS_VARS) document.documentElement.style.setProperty(CSS_VARS[k], state.colors[k] || "transparent");
+  $("#view").style.background = state.transparentBg ? "transparent" : state.colors.bg;
+  $("#view").classList.toggle("framed", !!state.frame);
+}
+function refreshUI() {
+  KEYS.forEach(k => {
+    const b = document.querySelector(`[data-tog="${k}"]`);
+    b.classList.toggle("on", state.enabled[k]);
+    b.textContent = `${CONFIG.names[k]}：${state.enabled[k] ? "ON" : "OFF"}`;
+  });
+  document.querySelectorAll("[data-mode]").forEach(b => b.classList.toggle("on", b.dataset.mode === state.greetMode));
+  const f = $("#btnFrame");
+  f.classList.toggle("on", !!state.frame);
+  f.textContent = "全体の枠：" + (state.frame ? "あり" : "なし");
+  const t = $("#btnTransp");
+  t.classList.toggle("on", state.transparentBg);
+  t.textContent = "背景を透明にする：" + (state.transparentBg ? "ON" : "OFF");
+}
+document.querySelectorAll("[data-tog]").forEach(b => b.addEventListener("click", () => {
+  const k = b.dataset.tog; state.enabled[k] = !state.enabled[k]; save(); refreshUI(); render();
+}));
+document.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => {
+  state.greetMode = b.dataset.mode; save(); refreshUI();
+}));
+$("#btnFrame").addEventListener("click", () => { state.frame = !state.frame; save(); applyColors(); refreshUI(); });
+$("#btnTransp").addEventListener("click", () => { state.transparentBg = !state.transparentBg; save(); applyColors(); refreshUI(); });
+document.querySelectorAll("[data-theme]").forEach(b => b.addEventListener("click", () => {
+  state.colors = { ...THEMES[b.dataset.theme] }; save(); syncInputs();
+}));
+function syncInputs() {
+  $("#inTitle").value = state.title;
+  $("#inUnit").value = state.unit;
+  applyColors(); refreshUI();
+  $("#inGreetWords").value = state.greetWords;
+  $("#inFollowKw").value = state.followKeyword;
+  $("#inFStart").value = state.fStart;
+  $("#inFNow").value = state.fNow;
+  document.querySelectorAll("[data-mult]").forEach(e => e.value = state.mult[e.dataset.mult]);
+}
+function bind(sel, prop, conv) {
+  $(sel).addEventListener("input", e => {
+    state[prop] = conv ? conv(e.target) : e.target.value; save(); render();
+  });
+}
+bind("#inTitle", "title"); bind("#inUnit", "unit");
+bind("#inGreetWords", "greetWords");
+bind("#inFollowKw", "followKeyword");
+bind("#inFStart", "fStart"); bind("#inFNow", "fNow");
+document.querySelectorAll("[data-mult]").forEach(e => e.addEventListener("input", () => {
+  state.mult[e.dataset.mult] = Math.max(0, Math.floor(Number(e.value) || 0)); save(); render();
+}));
+document.querySelectorAll("[data-adj]").forEach(b => b.addEventListener("click", () => {
+  const k = b.dataset.adj;
+  state.counts[k] = Math.max(0, state.counts[k] + Number(b.dataset.v)); save(); render();
+}));
+$("#btnDiff").addEventListener("click", () => {
+  const s = Number(state.fStart), n = Number(state.fNow);
+  if (isNaN(s) || isNaN(n) || state.fStart === "" || state.fNow === "") return alert("開始時と現在のフォロワー数を入力してください。");
+  state.counts.follow = Math.max(0, n - s); save(); render();
+});
+$("#btnReset").addEventListener("click", () => {
+  if (!confirm("カウントを全てリセットします。よろしいですか？（設定は残ります）")) return;
+  state.counts = { greet: 0, follow: 0, comment: 0 };
+  seenIds.clear(); seenToday.clear(); followed.clear(); save(); render();
+});
+$("#btnDebug").addEventListener("click", () => {
+  const o = $("#debugOut"); o.style.display = o.style.display === "block" ? "none" : "block";
+  if (!debugLines.length) o.textContent = "（システムコメントを受信するとここに生JSONが表示されます）";
+});
+
+/* ---------------- 接続（SDK / デモ） ---------------- */
+function setStatus(kind, text) { const s = $("#status"); s.className = kind; s.textContent = text; }
+
+function startSdk() {
+  if (typeof OneSDK === "undefined") return startDemo();
+  try {
+    OneSDK.setup({ mode: "diff", permissions: ["comments", "systemComment", "notification", "connected"] });
+    OneSDK.connect();
+    setStatus("ok", "接続OK");
+    OneSDK.subscribe({ action: "comments", callback: list => [].concat(list).forEach(c => handle(c, false)) });
+    OneSDK.subscribe({ action: "systemComment", callback: list => [].concat(list).forEach(c => handle(c, true)) });
+    try {
+      OneSDK.subscribe({ action: "connected", callback: v => {
+        const ok = Array.isArray(v) ? v.length > 0 : v !== false;
+        setStatus(ok ? "ok" : "ng", ok ? "接続OK" : "未接続");
+      }});
+    } catch (e) {}
+  } catch (e) { console.error(e); setStatus("ng", "接続エラー"); }
+}
+function startDemo() {
+  if (demoMode) return;
+  demoMode = true;
+  setStatus("demo", "デモモード（SDK未接続）");
+  $("#demoBox").style.display = "block";
+}
+let demoSeq = 0;
+document.querySelectorAll("[data-demo]").forEach(b => b.addEventListener("click", () => {
+  const t = b.dataset.demo, n = ++demoSeq, uid = "u" + Math.floor(Math.random() * 20);
+  if (t === "follow") {
+    handle({ id: "sys" + n, data: { id: "sys" + n, userId: "f" + n, name: "システム", comment: "テスト" + n + "さんがフォローしました", meta: { type: "system" } } }, true);
+  } else {
+    const text = t === "greet" ? "こんばんは！" : "テストコメント" + n;
+    handle({ id: "c" + n, data: { id: "c" + n, userId: uid, name: "テスト" + uid, comment: text, isFirstTime: t === "first" } }, false);
+  }
+}));
+
+/* ---------------- 起動 ---------------- */
+syncInputs(); render();
+const s = document.createElement("script");
+s.src = CONFIG.sdkUrl; s.onload = startSdk; s.onerror = startDemo;
+document.head.appendChild(s);
+setTimeout(() => { if (typeof OneSDK === "undefined") startDemo(); }, 3000);
+</script>
+</body>
+</html>
