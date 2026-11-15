@@ -103,7 +103,7 @@ body{
 <!-- ============ 右：操作エリア ============ -->
 <div id="ctrl">
   <div class="line">
-    <b style="font-size:22px">操作パネル</b>
+    <b style="font-size:22px">操作パネル</b><span id="ver" class="note"></span>
     <span id="status" class="ng">未接続</span>
   </div>
 
@@ -120,23 +120,18 @@ body{
   <div class="line"><label>挨拶の判定方式</label><span class="note">ボタンで選択</span></div>
   <div class="line" id="modeBox" style="flex-direction:column;align-items:flex-start"></div>
   <div class="line"><label>挨拶ワード（C用）</label><input type="text" id="inGreetWords" class="wide"></div>
-  <div class="line"><label>フォロー判定キーワード</label><input type="text" id="inFollowKw" style="width:220px"></div>
+  <div class="line"><label>フォロー判定キーワード</label><input type="text" id="inFollowKw" style="width:220px" placeholder="フォロー,follow"><span class="note">「,」で区切って複数書けます</span></div>
+  <div class="line"><label>フォロワー総数(Twitch)</label><b id="followerTotal">—</b></div>
 
   <h2>手動補正（接続切れ・取りこぼし対策）</h2>
   <div id="adjBox"></div>
-
-  <h2>フォロワー数の差分入力</h2>
-  <div class="line">
-    <label>開始時フォロワー数</label><input type="number" id="inFStart" min="0">
-    <label style="min-width:auto">現在数</label><input type="number" id="inFNow" min="0">
-    <button id="btnDiff">差分をフォロー数に反映</button>
-  </div>
 
   <h2>色の設定</h2>
   <div id="colorBox"></div>
   <p class="note">テーマボタンを押すと全体の色がまとめて変わります。</p>
 
   <h2>その他</h2>
+  <div class="line"><label style="min-width:auto"><input type="checkbox" id="togAutoReset"> 配信が始まったら自動で 0 に戻す</label></div>
   <div class="line">
     <button id="btnReset" class="danger">全リセット</button>
     <button id="btnDebug">デバッグ表示 ON/OFF</button>
@@ -160,6 +155,7 @@ body{
    設定（ここを編集すると名前・初期値などをまとめて変更できます）
    ===================================================================== */
 const CONFIG = {
+  version: "0.2.0",
   storageKey: "onecomme-generic-counter-v1",
   sdkUrl: "http://localhost:11180/templates/preset/__origin/js/onesdk.js",
   // カウンター名（表示・操作パネル共通）
@@ -171,59 +167,114 @@ const CONFIG = {
     unit: "歩",
     greetMode: "A",
     greetWords: "こんばんは,こんにちは,おはよう,初めまして,hello",
-    followKeyword: "フォロー",
+    followKeyword: "フォロー,follow",
     enabled: { greet: true, follow: true, comment: true },  // 各カウンターのON/OFF初期値
     transparentBg: false,
     frame: false,   // 全体の枠（初期値：なし）
+    autoReset: true,   // 配信が始まったら自動で 0 に戻す
     colors: {   // 色の初期値
       bg: "#fff7f0", card: "#ffffff", accent: "#ff7a9c",
       accentSub: "#ffd3df", text: "#4a3a3f", sub: "#9b8a8f"
     }
   },
-  maxIds: 5000   // 保存する重複排除用IDの上限
+  maxIds: 5000,   // 保存する重複排除用IDの上限
+  schema: 2,
+  live: { graceMs: 20000, freshMs: 45000, maxStarts: 8 },   // 配信開始の判定（ms）
+  sdkRetryMs: 10000,   // わんコメにつながるまでの再試行間隔
+  legacyKeys: ["onecomme-generic-counter-v1-probe"]   // 起動時に消す古いキー
 };
 
 /* ---------------- 状態 ---------------- */
 const KEYS = ["greet", "follow", "comment"];
+const CSS_VARS = { bg: "--bg", card: "--card", accent: "--accent", accentSub: "--accent-sub", text: "--text", sub: "--sub", titleOutline: "--title-outline" };
 const $ = s => document.querySelector(s);
+const loadedAt = Date.now();
+const liveSeenAt = new Map();     // startTime -> 最後にライブとして見た時刻（メモリだけ）
+const pendingStarts = new Set();  // 猶予の間に保留した startTime（メモリだけ）
+CONFIG.legacyKeys.forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
 let state = load();
 const seenIds = new Set(state.seenIds);
-const seenToday = new Set(state.seenToday);
+const greeted = new Set(state.greeted);
 const followed = new Set(state.followed);
-let demoMode = false;
 
 function freshState() {
   const d = CONFIG.defaults;
   return {
+    schema: CONFIG.schema,
     counts: { greet: 0, follow: 0, comment: 0 },
     mult: { ...d.mult }, title: d.title, unit: d.unit,
     greetMode: d.greetMode, greetWords: d.greetWords,
     followKeyword: d.followKeyword, enabled: { ...d.enabled }, colors: { ...d.colors }, transparentBg: d.transparentBg, frame: d.frame,
-    fStart: "", fNow: "", day: "", seenIds: [], seenToday: [], followed: []
+    autoReset: d.autoReset,
+    seenIds: [], greeted: [], followed: [],
+    live: { starts: [] }
   };
 }
 function load() {
   const base = freshState();
-  try {
-    const s = JSON.parse(localStorage.getItem(CONFIG.storageKey) || "null");
-    if (s) {
-      const en = { ...base.enabled, ...(s.enabled || {}) };
-      if (s.enabled === undefined && s.showComment === false) en.comment = false;
-      return { ...base, ...s, counts: { ...base.counts, ...s.counts }, mult: { ...base.mult, ...s.mult },
-               enabled: en, colors: { ...base.colors, ...(s.colors || {}) } };
-    }
-  } catch (e) {}
+  let s;
+  try { s = JSON.parse(localStorage.getItem(CONFIG.storageKey) || "null"); } catch (e) { return base; }
+  if (!s || typeof s !== "object" || Array.isArray(s)) return base;
+  const isObj = o => !!o && typeof o === "object" && !Array.isArray(o);
+  const own = (o, k) => (isObj(o) && Object.prototype.hasOwnProperty.call(o, k)) ? o[k] : undefined;
+  const isStr = v => typeof v === "string";
+  const num = (v, lo, hi) => (typeof v === "number" && Number.isFinite(v)) ? Math.min(hi, Math.max(lo, v)) : undefined;
+  const idList = v => Array.isArray(v) ? v.filter(x => isStr(x) && x.length <= 200).slice(-CONFIG.maxIds) : [];
+
+  const counts = own(s, "counts");
+  KEYS.forEach(k => {
+    const n = num(own(counts, k), 0, 999999999);
+    if (n !== undefined) base.counts[k] = Math.floor(n);
+  });
+  const mult = own(s, "mult");
+  KEYS.forEach(k => {
+    const v = own(mult, k);
+    if (typeof v === "number" && Number.isFinite(v) && v >= 0) base.mult[k] = Math.min(1000000, v);
+  });
+  const title = own(s, "title"); if (isStr(title)) base.title = title.slice(0, 60);
+  const unit = own(s, "unit"); if (isStr(unit)) base.unit = unit.slice(0, 20);
+  const gm = own(s, "greetMode"); if (gm === "A" || gm === "B" || gm === "C") base.greetMode = gm;
+  const gw = own(s, "greetWords"); if (isStr(gw)) base.greetWords = gw.slice(0, 200);
+  const fk = own(s, "followKeyword"); if (isStr(fk)) base.followKeyword = fk.slice(0, 200);
+  const en = own(s, "enabled");
+  KEYS.forEach(k => { const v = own(en, k); if (typeof v === "boolean") base.enabled[k] = v; });
+  if (!isObj(en) && own(s, "showComment") === false) base.enabled.comment = false;   // 0.1.0 の旧形式
+  const cl = own(s, "colors");
+  Object.keys(CSS_VARS).forEach(k => {
+    const v = own(cl, k);
+    if (isStr(v) && /^#[0-9a-fA-F]{6}$/.test(v)) base.colors[k] = v;
+  });
+  ["transparentBg", "frame", "autoReset"].forEach(k => { const v = own(s, k); if (typeof v === "boolean") base[k] = v; });
+  base.seenIds = idList(own(s, "seenIds"));
+  const live = own(s, "live"), st = own(live, "starts");
+  if (Array.isArray(st)) base.live.starts = st.filter(x => Number.isInteger(x) && x >= 1e12).slice(-CONFIG.live.maxStarts);
+
+  if (own(s, "schema") === CONFIG.schema) {
+    base.greeted = idList(own(s, "greeted"));
+    base.followed = idList(own(s, "followed"));
+  } else {
+    // 0.1.0 からの移行（1 回だけ）。greeted / followed は空で始める（中身の意味が変わったため）
+    if (base.followKeyword.trim() === "フォロー") base.followKeyword = "フォロー,follow";
+  }
   return base;
 }
+function trimSet(set) {
+  if (set.size > CONFIG.maxIds) {
+    const keep = [...set].slice(-CONFIG.maxIds);
+    set.clear(); keep.forEach(x => set.add(x));
+  }
+  return [...set];
+}
 function save() {
-  state.seenIds = [...seenIds].slice(-CONFIG.maxIds);
-  state.seenToday = [...seenToday];
-  state.followed = [...followed];
+  state.schema = CONFIG.schema;
+  state.seenIds = trimSet(seenIds);
+  state.greeted = trimSet(greeted);
+  state.followed = trimSet(followed);
   try { localStorage.setItem(CONFIG.storageKey, JSON.stringify(state)); } catch (e) {}
 }
-function today() {
-  const d = new Date();
-  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+function resetCounts() {
+  state.counts = { greet: 0, follow: 0, comment: 0 };
+  seenIds.clear(); greeted.clear(); followed.clear();
 }
 
 /* ---------------- 描画 ---------------- */
@@ -247,41 +298,122 @@ function debugLog(obj) {
   debugLines.length = Math.min(debugLines.length, 20);
   $("#debugOut").textContent = debugLines.join("\n----------\n");
 }
-function handle(item, fromSystemAction) {
-  const d = item && item.data ? item.data : item;
-  if (!d) return;
-  const isSys = !!fromSystemAction || (d.meta && d.meta.type === "system");
-  if (isSys) debugLog(item);
+function plainText(v) {          // タグを除いた本文。DOM を使わない
+  return String(v ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 500);
+}
+function wordList(v) {           // 「,」区切り。空要素は捨てる。小文字化
+  return String(v ?? "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+}
+function handle(item, action) {
+  // データが無いものは捨てる
+  const d = item && item.data;
+  if (!d || typeof d !== "object") return;
+  if (action === "systemComment" || (d.meta && d.meta.type === "system")) debugLog(item);
 
-  const id = String(d.id ?? (item && item.id) ?? "");
-  if (id) { if (seenIds.has(id)) return; seenIds.add(id); }   // ID重複排除
-  const text = String(d.comment ?? "");
+  // 重複: data.id だけで判定
+  const id = (typeof d.id === "string" || typeof d.id === "number") ? String(d.id) : "";
+  if (id) { if (seenIds.has(id)) return; seenIds.add(id); }
 
-  if (isSys) {
-    const kw = state.followKeyword.trim();
-    if (state.enabled.follow && kw && text.includes(kw)) {
-      const uid = d.userId;
-      if (uid) { if (followed.has(uid)) { save(); return; } followed.add(uid); }
-      state.counts.follow++;
-    }
+  const text = plainText(d.comment);
+  const lower = text.toLowerCase();
+
+  // systemComment: フォローだけを数える
+  if (action === "systemComment") {
+    if (d.userId === "onecomme.system") { save(); return; }
+    if (!state.enabled.follow) { save(); return; }
+    const kws = wordList(state.followKeyword);
+    if (!kws.length || !kws.some(w => lower.includes(w))) { save(); return; }
+    if (followed.has(text)) { save(); return; }
+    followed.add(text);
+    state.counts.follow++;
     save(); render(); return;
   }
 
+  // comments: 配信者本人は数えない
+  if (d.isOwner === true) { save(); return; }
   if (state.enabled.comment) state.counts.comment++;
-  if (state.day !== today()) { state.day = today(); seenToday.clear(); }  // 日付が変われば挨拶判定をリセット
-  const key = d.userId || d.name;
-  if (state.enabled.greet && key && !seenToday.has(key)) {
-    seenToday.add(key);
+
+  // あいさつ: 1 回の配信で 1 人 1 回だけ判定する
+  const key = (typeof d.userId === "string" && d.userId) || (typeof d.name === "string" && d.name) || "";
+  if (state.enabled.greet && key && !greeted.has(key)) {
+    greeted.add(key);
     let ok = false;
     if (state.greetMode === "A") ok = true;
     else if (state.greetMode === "B") ok = d.isFirstTime === true;
-    else {
-      const words = state.greetWords.split(",").map(s => s.trim()).filter(Boolean);
-      ok = words.some(w => text.toLowerCase().includes(w.toLowerCase()));
-    }
+    else ok = wordList(state.greetWords).some(w => lower.includes(w));
     if (ok) state.counts.greet++;
   }
   save(); render();
+}
+
+/* ---------------- 配信開始でリセット（meta） ---------------- */
+function metaItems(v) {          // 外側の形が未確認なので 3 通りを受ける
+  const out = [];
+  for (const x of (Array.isArray(v) ? v : [v])) {
+    if (!x || typeof x !== "object" || Array.isArray(x)) continue;
+    const m = (x.data && typeof x.data === "object" && !Array.isArray(x.data)) ? x.data : x;
+    out.push(m);
+  }
+  return out;
+}
+function liveStart(m, now) {     // 使える startTime なら整数、だめなら null
+  if (m.isLive === false) return null;
+  let t = m.startTime;
+  if (typeof t === "string" && /^\d{13}$/.test(t)) t = Number(t);
+  if (typeof t !== "number" || !Number.isInteger(t)) return null;
+  if (t < 1e12 || t > now + 86400000) return null;
+  return t;
+}
+function followerTotal(m) {      // 表示用。だめなら null
+  let f = m.follower;
+  if (typeof f === "string" && /^\d{1,12}$/.test(f)) f = Number(f);
+  return (typeof f === "number" && Number.isInteger(f) && f >= 0 && f <= 1e12) ? f : null;
+}
+function onMeta(v) {
+  try {
+    for (const m of metaItems(v)) {
+      const f = followerTotal(m);
+      if (f !== null) $("#followerTotal").textContent = fmt(f);
+      const now = Date.now();
+      const T = liveStart(m, now);
+      if (T !== null) onLiveStart(T, now);
+    }
+  } catch (e) { console.error(e); }
+}
+function knownFresh(now) {       // 配信の記録のどれかを、直近 45 秒以内にライブとして見たか
+  return state.live.starts.some(s => liveSeenAt.has(s) && now - liveSeenAt.get(s) <= CONFIG.live.freshMs);
+}
+function addStart(T, now) {      // 同じ配信の仲間として足す（リセットしない）
+  if (!state.live.starts.includes(T)) state.live.starts.push(T);
+  state.live.starts = state.live.starts.slice(-CONFIG.live.maxStarts);
+  liveSeenAt.set(T, now);
+}
+function newStream(list, now) {  // 新しい配信として記録を入れ替える
+  state.live.starts = list.slice(-CONFIG.live.maxStarts);
+  liveSeenAt.clear(); list.forEach(t => liveSeenAt.set(t, now));
+  pendingStarts.clear();
+  if (state.autoReset) resetCounts();
+  save(); render();
+}
+function onLiveStart(T, now) {
+  // (a) 知っている startTime: 見た時刻を更新するだけ
+  if (state.live.starts.includes(T)) {
+    liveSeenAt.set(T, now);
+    if (pendingStarts.size) { pendingStarts.forEach(p => addStart(p, now)); pendingStarts.clear(); save(); }
+    return;
+  }
+  // (b) 知らない startTime で、記録のどれかを直近 45 秒以内に見ている: 同時配信の相方
+  if (knownFresh(now)) { addStart(T, now); save(); return; }
+  // (c) 記録があり、猶予（読み込みから 20 秒）の中: 保留する
+  if (state.live.starts.length > 0 && now - loadedAt < CONFIG.live.graceMs) { pendingStarts.add(T); return; }
+  // (d) それ以外: 新しい配信
+  newStream([T], now);
+}
+function onGraceEnd() {
+  if (!pendingStarts.size) return;
+  const now = Date.now(), list = [...pendingStarts];
+  if (knownFresh(now)) { list.forEach(p => addStart(p, now)); pendingStarts.clear(); save(); }
+  else newStream(list, now);
 }
 
 /* ---------------- 操作パネルの生成 ---------------- */
@@ -294,8 +426,7 @@ $("#adjBox").innerHTML = KEYS.map(k =>
     <button data-adj="${k}" data-v="1">＋1</button></div>`).join("");
 
 /* ---- ON/OFF・判定方式（ボタン式）・色 ---- */
-const MODES = [["A", "本日初コメントの全員"], ["B", "初コメ（isFirstTime）の人のみ"], ["C", "挨拶ワードを含む初コメント"]];
-const CSS_VARS = { bg: "--bg", card: "--card", accent: "--accent", accentSub: "--accent-sub", text: "--text", sub: "--sub", titleOutline: "--title-outline" };
+const MODES = [["A", "この配信で初めてコメントした全員"], ["B", "初コメ（isFirstTime）の人のみ"], ["C", "挨拶ワードを含む初コメント"]];
 const THEMES = {
   "ピンク": { ...CONFIG.defaults.colors },
   "ブルー": { bg: "#eef7ff", card: "#ffffff", accent: "#3d8bfd", accentSub: "#cfe4ff", text: "#2f3e52", sub: "#7a8aa0" },
@@ -331,6 +462,7 @@ function refreshUI() {
   const t = $("#btnTransp");
   t.classList.toggle("on", state.transparentBg);
   t.textContent = "背景を透明にする：" + (state.transparentBg ? "ON" : "OFF");
+  $("#togAutoReset").checked = !!state.autoReset;
 }
 document.querySelectorAll("[data-tog]").forEach(b => b.addEventListener("click", () => {
   const k = b.dataset.tog; state.enabled[k] = !state.enabled[k]; save(); refreshUI(); render();
@@ -340,6 +472,7 @@ document.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click"
 }));
 $("#btnFrame").addEventListener("click", () => { state.frame = !state.frame; save(); applyColors(); refreshUI(); });
 $("#btnTransp").addEventListener("click", () => { state.transparentBg = !state.transparentBg; save(); applyColors(); refreshUI(); });
+$("#togAutoReset").addEventListener("change", e => { state.autoReset = !!e.target.checked; save(); });
 document.querySelectorAll("[data-theme]").forEach(b => b.addEventListener("click", () => {
   state.colors = { ...THEMES[b.dataset.theme] }; save(); syncInputs();
 }));
@@ -349,8 +482,6 @@ function syncInputs() {
   applyColors(); refreshUI();
   $("#inGreetWords").value = state.greetWords;
   $("#inFollowKw").value = state.followKeyword;
-  $("#inFStart").value = state.fStart;
-  $("#inFNow").value = state.fNow;
   document.querySelectorAll("[data-mult]").forEach(e => e.value = state.mult[e.dataset.mult]);
 }
 function bind(sel, prop, conv) {
@@ -361,7 +492,6 @@ function bind(sel, prop, conv) {
 bind("#inTitle", "title"); bind("#inUnit", "unit");
 bind("#inGreetWords", "greetWords");
 bind("#inFollowKw", "followKeyword");
-bind("#inFStart", "fStart"); bind("#inFNow", "fNow");
 document.querySelectorAll("[data-mult]").forEach(e => e.addEventListener("input", () => {
   state.mult[e.dataset.mult] = Math.max(0, Math.floor(Number(e.value) || 0)); save(); render();
 }));
@@ -369,63 +499,74 @@ document.querySelectorAll("[data-adj]").forEach(b => b.addEventListener("click",
   const k = b.dataset.adj;
   state.counts[k] = Math.max(0, state.counts[k] + Number(b.dataset.v)); save(); render();
 }));
-$("#btnDiff").addEventListener("click", () => {
-  const s = Number(state.fStart), n = Number(state.fNow);
-  if (isNaN(s) || isNaN(n) || state.fStart === "" || state.fNow === "") return alert("開始時と現在のフォロワー数を入力してください。");
-  state.counts.follow = Math.max(0, n - s); save(); render();
-});
 $("#btnReset").addEventListener("click", () => {
   if (!confirm("カウントを全てリセットします。よろしいですか？（設定は残ります）")) return;
-  state.counts = { greet: 0, follow: 0, comment: 0 };
-  seenIds.clear(); seenToday.clear(); followed.clear(); save(); render();
+  resetCounts(); save(); render();   // 配信の記録（live.starts）は変えない
 });
 $("#btnDebug").addEventListener("click", () => {
   const o = $("#debugOut"); o.style.display = o.style.display === "block" ? "none" : "block";
   if (!debugLines.length) o.textContent = "（システムコメントを受信するとここに生JSONが表示されます）";
 });
 
-/* ---------------- 接続（SDK / デモ） ---------------- */
+/* ---------------- 接続（SDK / デモ / 再試行） ---------------- */
 function setStatus(kind, text) { const s = $("#status"); s.className = kind; s.textContent = text; }
 
+let sdkStarted = false, demoMode = false, sdkTimer = null;
+function loadSdk() {             // SDK の script を 1 本読む
+  if (sdkStarted) return;
+  document.querySelectorAll("script[data-onesdk]").forEach(e => e.remove());
+  const s = document.createElement("script");
+  s.src = CONFIG.sdkUrl; s.dataset.onesdk = "1";
+  s.onload = startSdk; s.onerror = startDemo;
+  document.head.appendChild(s);
+}
+function eachItem(list, action) {
+  [].concat(list).forEach(c => { try { handle(c, action); } catch (e) { console.error(e); } });
+}
 function startSdk() {
+  if (sdkStarted) return;
   if (typeof OneSDK === "undefined") return startDemo();
+  sdkStarted = true;
+  if (sdkTimer) { clearInterval(sdkTimer); sdkTimer = null; }
+  demoMode = false; $("#demoBox").style.display = "none";
   try {
-    OneSDK.setup({ mode: "diff", permissions: ["comments", "systemComment", "notification", "connected"] });
+    OneSDK.setup({ mode: "diff", permissions: ["comments", "systemComment", "notification", "connected", "meta"] });
     OneSDK.connect();
     setStatus("ok", "接続OK");
-    OneSDK.subscribe({ action: "comments", callback: list => [].concat(list).forEach(c => handle(c, false)) });
-    OneSDK.subscribe({ action: "systemComment", callback: list => [].concat(list).forEach(c => handle(c, true)) });
-    try {
-      OneSDK.subscribe({ action: "connected", callback: v => {
-        const ok = Array.isArray(v) ? v.length > 0 : v !== false;
-        setStatus(ok ? "ok" : "ng", ok ? "接続OK" : "未接続");
-      }});
-    } catch (e) {}
+    OneSDK.subscribe({ action: "comments", callback: list => eachItem(list, "comments") });
+    OneSDK.subscribe({ action: "systemComment", callback: list => eachItem(list, "systemComment") });
   } catch (e) { console.error(e); setStatus("ng", "接続エラー"); }
+  try {
+    OneSDK.subscribe({ action: "connected", callback: v => {
+      const ok = Array.isArray(v) ? v.length > 0 : v !== false;
+      setStatus(ok ? "ok" : "ng", ok ? "接続OK" : "未接続");
+    }});
+  } catch (e) {}
+  try { OneSDK.subscribe({ action: "meta", callback: onMeta }); } catch (e) {}
 }
 function startDemo() {
-  if (demoMode) return;
+  if (sdkStarted || demoMode) return;
   demoMode = true;
-  setStatus("demo", "デモモード（SDK未接続）");
-  $("#demoBox").style.display = "block";
+  setStatus("demo", "デモモード（SDK未接続）"); $("#demoBox").style.display = "block";
+  if (!sdkTimer) sdkTimer = setInterval(loadSdk, CONFIG.sdkRetryMs);   // 10 秒ごとに読み直す
 }
 let demoSeq = 0;
 document.querySelectorAll("[data-demo]").forEach(b => b.addEventListener("click", () => {
   const t = b.dataset.demo, n = ++demoSeq, uid = "u" + Math.floor(Math.random() * 20);
   if (t === "follow") {
-    handle({ id: "sys" + n, data: { id: "sys" + n, userId: "f" + n, name: "システム", comment: "テスト" + n + "さんがフォローしました", meta: { type: "system" } } }, true);
+    handle({ id: "demo-f" + n, data: { id: "demo-f" + n, userId: "demo-f" + n, name: "システム", comment: "テスト" + n + "さんにフォローされました", meta: { type: "system" } } }, "systemComment");
   } else {
     const text = t === "greet" ? "こんばんは！" : "テストコメント" + n;
-    handle({ id: "c" + n, data: { id: "c" + n, userId: uid, name: "テスト" + uid, comment: text, isFirstTime: t === "first" } }, false);
+    handle({ id: "demo-c" + n, data: { id: "demo-c" + n, userId: uid, name: "テスト" + uid, comment: text, isFirstTime: t === "first" } }, "comments");
   }
 }));
 
 /* ---------------- 起動 ---------------- */
+$("#ver").textContent = "v" + CONFIG.version;
 syncInputs(); render();
-const s = document.createElement("script");
-s.src = CONFIG.sdkUrl; s.onload = startSdk; s.onerror = startDemo;
-document.head.appendChild(s);
-setTimeout(() => { if (typeof OneSDK === "undefined") startDemo(); }, 3000);
+loadSdk();
+setTimeout(() => { if (!sdkStarted) startDemo(); }, 3000);
+setTimeout(onGraceEnd, CONFIG.live.graceMs);
 </script>
 </body>
 </html>
