@@ -1,0 +1,498 @@
+{
+ "notable_samples": {
+  "channel_point": {
+   "item": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "service": "twitch",
+    "name": "#Twitch",
+    "url": "https://example.invalid/stream",
+    "color": {
+     "r": 206,
+     "g": 65,
+     "b": 255
+    },
+    "data": {
+     "id": "a0000000-0000-4000-8000-000000000001",
+     "userId": "tw-100000001",
+     "liveId": "system",
+     "name": "テストA",
+     "displayName": "テストA",
+     "isOwner": false,
+     "hasGift": true,
+     "free": true,
+     "profileImage": "https://static-cdn.jtvnw.net/jtv_user_pictures/test-profile_image-300x300.png",
+     "originalProfileImage": "https://static-cdn.jtvnw.net/jtv_user_pictures/test-profile_image-300x300.png",
+     "badges": [],
+     "timestamp": "2026-11-03T15:08:54.949Z",
+     "type": "info",
+     "comment": "<img src=\"https://static-cdn.jtvnw.net/custom-reward-images/test/test/test/custom-2.png\" alt=\"\" class=\"gift-image cp-image\" /> テスト報酬",
+     "icon": "default",
+     "meta": {
+      "type": "system",
+      "hasNickname": true
+     },
+     "screenName": "testuser_a",
+     "isChannelPoint": true,
+     "reward": {
+      "id": "r0000000-0000-4000-8000-000000000001",
+      "channel_id": "100000000",
+      "title": "テスト報酬",
+      "prompt": "テスト",
+      "cost": 111,
+      "is_user_input_required": false,
+      "is_sub_only": false,
+      "image": null,
+      "default_image": {
+       "url_1x": "https://static-cdn.jtvnw.net/custom-reward-images/test/test/test/custom-1.png"
+      }
+     },
+     "price": 111,
+     "nickname": "テスト視聴者C",
+     "speechText": "１ばーん【1配信1回だけ】",
+     "isFirstTime": true,
+     "isRepeater": true
+    },
+    "meta": {
+     "free": false,
+     "interval": 76777998,
+     "tc": 177
+    }
+   }
+  },
+  "onecomme_system:接続しました": {
+   "item": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "service": "system",
+    "name": "#Youtube",
+    "url": "https://example.invalid/stream",
+    "color": {
+     "r": 255,
+     "g": 0,
+     "b": 0
+    },
+    "data": {
+     "id": "abcd1234-1793718576211",
+     "userId": "onecomme.system",
+     "liveId": "system",
+     "name": "わんコメ",
+     "displayName": "わんコメ",
+     "isOwner": false,
+     "hasGift": false,
+     "free": false,
+     "profileImage": "https://static.onecomme.com/onecomme-icon.png",
+     "originalProfileImage": "https://static.onecomme.com/onecomme-icon.png",
+     "badges": [],
+     "timestamp": "2026-11-03T15:09:36.212Z",
+     "type": "info",
+     "comment": "接続しました - #Youtube",
+     "icon": "default",
+     "meta": {
+      "type": "system"
+     },
+     "speechText": "接続しました - #Youtube"
+    }
+   }
+  },
+  "watch_streak": {
+   "item": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "service": "twitch",
+    "name": "#Twitch",
+    "url": "https://example.invalid/stream",
+    "color": {
+     "r": 206,
+     "g": 65,
+     "b": 255
+    },
+    "data": {
+     "id": "tw-milestone-b0000000-0000-4000-8000-000000000001",
+     "userId": "tw-100000002",
+     "liveId": "system",
+     "name": "テストB",
+     "displayName": "テストB",
+     "isOwner": false,
+     "hasGift": false,
+     "free": false,
+     "profileImage": "https://static-cdn.jtvnw.net/jtv_user_pictures/test-profile_image-300x300.png",
+     "originalProfileImage": "https://static-cdn.jtvnw.net/jtv_user_pictures/test-profile_image-300x300.png",
+     "badges": [],
+     "timestamp": "2026-11-03T15:22:56.719Z",
+     "type": "info",
+     "comment": "<small>テストBは 45 回連続でストリーミングを視聴し、連続視聴回数を記録しました。</small><br />konpoko ganbare",
+     "icon": "thumbUp",
+     "meta": {
+      "type": "system"
+     },
+     "screenName": "testuser_b",
+     "isFirstTime": false,
+     "isRepeater": true
+    },
+    "meta": {
+     "no": 2,
+     "tc": 80,
+     "lc": 8,
+     "interval": 18997
+    }
+   }
+  },
+  "raid": {
+   "item": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "service": "system",
+    "name": "#Twitch",
+    "url": "https://example.invalid/stream",
+    "color": {
+     "r": 206,
+     "g": 65,
+     "b": 255
+    },
+    "data": {
+     "id": "tw.raid-1793722509554",
+     "userId": "tw-100000003",
+     "liveId": "system",
+     "name": "テストC",
+     "displayName": "テストC",
+     "isOwner": false,
+     "hasGift": false,
+     "free": false,
+     "profileImage": "https://static-cdn.jtvnw.net/jtv_user_pictures/test-profile_image-300x300.png",
+     "originalProfileImage": "https://static-cdn.jtvnw.net/jtv_user_pictures/test-profile_image-300x300.png",
+     "badges": [],
+     "timestamp": "2026-11-03T16:15:09.554Z",
+     "type": "info",
+     "comment": "テストC さんが 7 人の視聴者とレイドしました！",
+     "icon": "share",
+     "meta": {
+      "type": "system"
+     },
+     "screenName": "testuser_c",
+     "speechText": "テストC さんが 7 人の視聴者とレイドしました！"
+    }
+   }
+  },
+  "onecomme_system:切断されました": {
+   "item": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "service": "system",
+    "name": "#Twitch",
+    "url": "https://example.invalid/stream",
+    "color": {
+     "r": 206,
+     "g": 65,
+     "b": 255
+    },
+    "data": {
+     "id": "abcd1234-1793729819371",
+     "userId": "onecomme.system",
+     "liveId": "system",
+     "name": "わんコメ",
+     "displayName": "わんコメ",
+     "isOwner": false,
+     "hasGift": false,
+     "free": false,
+     "profileImage": "https://static.onecomme.com/onecomme-icon.png",
+     "originalProfileImage": "https://static.onecomme.com/onecomme-icon.png",
+     "badges": [],
+     "timestamp": "2026-11-03T18:16:59.371Z",
+     "type": "error",
+     "comment": "切断されました - #Twitch",
+     "icon": "default",
+     "meta": {
+      "type": "system"
+     },
+     "speechText": "切断されました - #Twitch"
+    }
+   }
+  },
+  "onecomme_system:再接続中": {
+   "item": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "service": "system",
+    "name": "#Twitch",
+    "url": "https://example.invalid/stream",
+    "color": {
+     "r": 206,
+     "g": 65,
+     "b": 255
+    },
+    "data": {
+     "id": "abcd1234-1793729819507",
+     "userId": "onecomme.system",
+     "liveId": "system",
+     "name": "わんコメ",
+     "displayName": "わんコメ",
+     "isOwner": false,
+     "hasGift": false,
+     "free": false,
+     "profileImage": "https://static.onecomme.com/onecomme-icon.png",
+     "originalProfileImage": "https://static.onecomme.com/onecomme-icon.png",
+     "badges": [],
+     "timestamp": "2026-11-03T18:16:59.508Z",
+     "type": "warning",
+     "comment": "再接続中 - #Twitch",
+     "icon": "default",
+     "meta": {
+      "type": "system"
+     },
+     "speechText": "再接続中 - #Twitch"
+    }
+   }
+  },
+  "onecomme_system:終了": {
+   "item": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "service": "system",
+    "name": "#Youtube",
+    "url": "https://example.invalid/stream",
+    "color": {
+     "r": 255,
+     "g": 0,
+     "b": 0
+    },
+    "data": {
+     "id": "yt-1793733215399",
+     "userId": "onecomme.system",
+     "liveId": "system",
+     "name": "わんコメ",
+     "displayName": "わんコメ",
+     "isOwner": false,
+     "hasGift": false,
+     "free": false,
+     "profileImage": "https://static.onecomme.com/onecomme-icon.png",
+     "originalProfileImage": "https://static.onecomme.com/onecomme-icon.png",
+     "badges": [],
+     "timestamp": "2026-11-03T19:13:35.399Z",
+     "type": "warning",
+     "comment": "終了",
+     "icon": "default",
+     "meta": {
+      "type": "system"
+     },
+     "speechText": "終了"
+    }
+   }
+  },
+  "onecomme_system:<strong>": {
+   "item": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "service": "system",
+    "name": "#Youtube",
+    "url": "https://example.invalid/stream",
+    "color": {
+     "r": 255,
+     "g": 0,
+     "b": 0
+    },
+    "data": {
+     "id": "abcd1234-1793733590291",
+     "userId": "onecomme.system",
+     "liveId": "system",
+     "name": "わんコメ",
+     "displayName": "わんコメ",
+     "isOwner": false,
+     "hasGift": false,
+     "free": false,
+     "profileImage": "https://static.onecomme.com/onecomme-icon.png",
+     "originalProfileImage": "https://static.onecomme.com/onecomme-icon.png",
+     "badges": [],
+     "timestamp": "2026-11-03T19:19:50.291Z",
+     "type": "warning",
+     "comment": "<strong>#Youtube - ライブ配信が見つかりませんでした</strong>",
+     "icon": "default",
+     "actions": [
+      "reconnect"
+     ],
+     "meta": {
+      "type": "system"
+     },
+     "speechText": "#Youtube - ライブ配信が見つかりませんでした"
+    }
+   }
+  },
+  "follow": {
+   "item": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "service": "system",
+    "name": "#Twitch",
+    "url": "https://example.invalid/stream",
+    "color": {
+     "r": 206,
+     "g": 65,
+     "b": 255
+    },
+    "data": {
+     "id": "tw-followed-100000001-1794076587264",
+     "userId": "tw-100000001",
+     "liveId": "system",
+     "name": "テストA",
+     "displayName": "テストA",
+     "isOwner": false,
+     "hasGift": false,
+     "free": false,
+     "profileImage": "https://static-cdn.jtvnw.net/jtv_user_pictures/test-profile_image-300x300.png",
+     "originalProfileImage": "https://static-cdn.jtvnw.net/jtv_user_pictures/test-profile_image-300x300.png",
+     "badges": [],
+     "timestamp": "2026-11-07T18:36:27.267Z",
+     "type": "info",
+     "comment": "テストA(@testuser_a)さんにフォローされました",
+     "icon": "default",
+     "meta": {
+      "type": "system"
+     },
+     "screenName": "testuser_a",
+     "speechText": "テストA(@testuser_a)さんにフォローされました"
+    }
+   }
+  }
+ },
+ "normal_comment": {
+  "item": {
+   "id": "00000000-0000-4000-8000-000000000001",
+   "service": "twitch",
+   "name": "#Twitch",
+   "url": "https://example.invalid/stream",
+   "color": {
+    "r": 206,
+    "g": 65,
+    "b": 255
+   },
+   "data": {
+    "id": "tw-c0000000-0000-4000-8000-000000000001",
+    "liveId": "100000000001",
+    "screenName": "testuser_e",
+    "userId": "tw-100000005",
+    "name": "テストE",
+    "profileImage": "https://static-cdn.jtvnw.net/jtv_user_pictures/test-profile_image-300x300.png",
+    "badges": [
+     {
+      "label": "vip/1",
+      "url": "https://static-cdn.jtvnw.net/badges/v1/test/2"
+     },
+     {
+      "label": "founder/0",
+      "url": "https://static-cdn.jtvnw.net/badges/v1/test/2"
+     },
+     {
+      "label": "pokemonxp-costumed-pikachu/1",
+      "url": "https://static-cdn.jtvnw.net/badges/v1/test/2"
+     }
+    ],
+    "isOwner": false,
+    "isModerator": false,
+    "hasGift": false,
+    "timestamp": "2026-11-07T18:33:46.352Z",
+    "comment": "テストコメント",
+    "turbo": "0",
+    "flags": "",
+    "mod": "0",
+    "subscriber": "1",
+    "origin": "@badge-info=;badges=;display-name=テスト;first-msg=0;user-id=0",
+    "displayName": "テストE",
+    "originalProfileImage": "https://static-cdn.jtvnw.net/jtv_user_pictures/test-profile_image-300x300.png",
+    "meta": {},
+    "speechText": "150台は女子なら普通な気がするけどね",
+    "isFirstTime": false,
+    "isRepeater": true
+   },
+   "meta": {
+    "no": 64,
+    "tc": 32736,
+    "lc": 331,
+    "interval": 651665
+   }
+  }
+ },
+ "meta_samples": {
+  "youtube": [
+   {
+    "data": {
+     "isConnecting": false,
+     "isReconnecting": false,
+     "url": "https://example.invalid/watch",
+     "loggedIn": true,
+     "loggedName": "テスト配信者",
+     "isLive": true,
+     "title": "テスト配信",
+     "upVote": "3",
+     "total": 86,
+     "startTime": 1794068226000,
+     "viewer": "4",
+     "subscriberCount": "3820"
+    }
+   },
+   {
+    "data": {
+     "isConnecting": false,
+     "isReconnecting": false,
+     "url": "https://example.invalid/watch",
+     "loggedIn": true,
+     "loggedName": "テスト配信者",
+     "isLive": true,
+     "title": "テスト配信",
+     "upVote": "3",
+     "total": 86,
+     "startTime": 1794068226000,
+     "viewer": 4,
+     "subscriberCount": "3820"
+    }
+   },
+   {
+    "data": {
+     "isConnecting": false,
+     "isReconnecting": false,
+     "url": "https://example.invalid/watch",
+     "loggedIn": true,
+     "loggedName": "テスト配信者",
+     "isLive": true,
+     "title": "テスト配信",
+     "upVote": "3",
+     "total": 86,
+     "startTime": 1794068226000,
+     "viewer": 4,
+     "subscriberCount": "3820"
+    }
+   }
+  ],
+  "twitch": [
+   {
+    "data": {
+     "isConnecting": false,
+     "isReconnecting": false,
+     "title": "テスト配信",
+     "isLive": true,
+     "loggedIn": true,
+     "loggedName": "テスト配信者",
+     "follower": 4043,
+     "viewer": 41,
+     "startTime": 1794066966000
+    }
+   },
+   {
+    "data": {
+     "isConnecting": false,
+     "isReconnecting": false,
+     "title": "テスト配信",
+     "isLive": true,
+     "loggedIn": true,
+     "loggedName": "テスト配信者",
+     "follower": 4043,
+     "viewer": 41,
+     "startTime": 1794066966000
+    }
+   },
+   {
+    "data": {
+     "isConnecting": false,
+     "isReconnecting": false,
+     "title": "テスト配信",
+     "isLive": true,
+     "loggedIn": true,
+     "loggedName": "テスト配信者",
+     "follower": 4043,
+     "viewer": 41,
+     "startTime": 1794066966000
+    }
+   }
+  ]
+ }
+}

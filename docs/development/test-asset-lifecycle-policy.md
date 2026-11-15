@@ -6,8 +6,8 @@
 |---|---|
 | repo | 色々カウンター(わんコメ用テンプレート)(`onecomme-counter`) |
 | base branch | `main` |
-| バージョン正本 | git tag `vX.Y.Z`(現在 v0.1.0) |
-| テスト実行手段 | 自動テストなし。わんコメ / OBS での手動確認を test-case master(manual)として登録する |
+| バージョン正本 | git tag `vX.Y.Z`(現在 v0.2.0) |
+| テスト実行手段 | `tests/`(Playwright・模擬 SDK を `page.route` で差し替え。`npm test`)で mock 試験を自動実行する。わんコメ / OBS での手動確認は test-case master(manual)として登録する |
 | QA 成果物の置き場 | `docs/development/` 配下(drbfm / test-cases / evidence / qa-review / dev-intent / test-inventory)。配置規約は SQA `docs/integrations/target-repositories.md` |
 
 手順・テンプレート・チェックリスト・プロンプトは `brantechs/SQA`(sqa-agent)が正本。雛形の適用方針は `brantechs/templete-project` の `docs/development/test-asset-lifecycle-policy.md`。本書はこの repo への適用条件だけを定める。
@@ -44,7 +44,7 @@
 4. 高級モデルが DRBFM から全通り試験を設計し、指示書に test_case_id 一覧として含める
 5. 作業ブランチ作成(main 起点)
 6. 実装(人間の指示・判断・訂正・却下は docs/development/dev-intent/<ticket>.md に記録)
-7. test: 全通り試験 + 既存テスト全件(自動テストなし)。失敗は STOP
+7. test: 全通り試験 + 既存テスト全件(`npm test`)。失敗は STOP
 8. 開発中に書いたテストを docs/development/test-cases/master/<feature>.yaml に登録(資産化)。削除・skip 化はしない
 9. evidence(docs/development/evidence/<ticket>/)を残し、開発意図ログの指針を DRBFM 行 / test case に結ぶ
 10. セキュリティレビュー(§4.2。コード確定後に /security-review → docs/development/evidence/<ticket>/security-review.md → scripts/qa-gate.sh security-stamp)

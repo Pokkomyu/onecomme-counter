@@ -1,0 +1,2450 @@
+meta:
+  repo: onecomme-counter
+  feature: follow-count
+  ticket_id: follow-count
+  updated: 2026-11-15
+
+test_cases:
+  - test_case_id: TC-OCC-001
+    title: "フォロー通知を systemComment で 1 回"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 1"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`N.follow` を systemComment で 1 回"
+    expected:
+      - "フォロー 1、コメント 0、あいさつ 0"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-002
+    title: "同じ data.id のフォロー通知 2 回"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 1,4"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`N.follow` を同じ data.id で 2 回"
+    expected:
+      - "フォロー 1 のまま"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-003
+    title: "data.id だけ別の再フォロー"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 1"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`N.follow` 改(data.id だけ別、本文同じ=再フォロー)"
+    expected:
+      - "フォロー 1 のまま"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-004
+    title: "別の人のフォロー通知"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 1"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`N.follow` と、改(本文の名前・userId・data.id が別)を 1 回ずつ"
+    expected:
+      - "フォロー 2"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-005
+    title: "レイド通知は数えない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 2"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`N.raid` を systemComment で"
+    expected:
+      - "3 つとも 0 のまま"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-006
+    title: "わんコメのシステム通知 5 件"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 2"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`N[\"onecomme_system:接続しました\"]`「切断されました」「再接続中」「終了」「<strong>」の 5 件"
+    expected:
+      - "3 つとも 0 のまま。例外なし"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-007
+    title: "onecomme.system はフォローに数えない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 2"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`N[\"onecomme_system:接続しました\"]` 改(本文を「フォローを確認しました」に)"
+    expected:
+      - "フォロー 0(userId `onecomme.system` は除外)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-008
+    title: "キーワードは大文字小文字を区別しない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 3"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "followKeyword=`フォロー,follow`。`N.follow` 改(本文 `userA Followed you`、data.id 別)"
+    expected:
+      - "フォロー +1(大文字小文字を区別しない)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-009
+    title: "キーワードが空・区切りだけ"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 3"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "followKeyword を空、` , ,` にして `N.follow`"
+    expected:
+      - "どちらもフォロー 0。例外なし"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-010
+    title: "キーワードを正規表現として解釈しない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 3"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "followKeyword=`.*` にして括弧を含むフォロー本文で `N.follow`"
+      - "followKeyword=`(` にして括弧を含まないフォロー本文で `N.follow`"
+    expected:
+      - "どちらもフォロー 0。例外なし(文字どおりの部分一致で、正規表現として解釈しない)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-011
+    title: "フォロー OFF 中は重複記録に入れない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 1"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "フォローを OFF にして `N.follow` → ON に戻し `N.follow` 改(data.id 別・本文同じ)"
+    expected:
+      - "OFF 中は 0。ON 後は +1(OFF 中は重複記録に入れない)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-012
+    title: "通常コメント(A 方式): 同じ人の 2 件目"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 5"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`normal` を 1 回、同じ userId で data.id 別を 1 回(A 方式)"
+    expected:
+      - "コメント 2、あいさつ 1"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-013
+    title: "チャネポ(A 方式)"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 5"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`N.channel_point` を comments で(A 方式)"
+    expected:
+      - "コメント 1、あいさつ 1、フォロー 0"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-014
+    title: "連続視聴(A 方式)"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 5"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`N.watch_streak` を comments で(A 方式)"
+    expected:
+      - "コメント 1、あいさつ 1、フォロー 0"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-015
+    title: "B 方式: isFirstTime だけ"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 5"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "B 方式。`N.channel_point`(isFirstTime true)と `N.watch_streak`(false)"
+    expected:
+      - "コメント 2、あいさつ 1"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-016
+    title: "C 方式: タグ・属性の文字では当たらない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 5,6"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "C 方式。挨拶ワード=`img,gift-image,small,alt`。`N.channel_point` と `N.watch_streak`"
+    expected:
+      - "コメント 2、あいさつ 0(タグ・属性の文字では当たらない)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-017
+    title: "C 方式: タグを除いた本文・大文字小文字無視"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 5"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "C 方式。挨拶ワード=`KONPOKO`。`N.watch_streak`(fixture の利用者コメント部分は `konpoko ganbare`)"
+    expected:
+      - "あいさつ 1(タグを除いた本文・大文字小文字を区別しない)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-018
+    title: "C 方式: 同じ人の 2 件目はあいさつ判定しない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 5"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "C 方式。挨拶ワード=`こんばんは`。`normal` 改(本文「こんばんは！」)→ 同じ人の 2 件目も「こんばんは」"
+    expected:
+      - "あいさつ 1、コメント 2"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-019
+    title: "配信者本人は数えない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 7"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`normal` 改(isOwner true)。A 方式"
+    expected:
+      - "3 つとも 0。その後 isOwner false で同じ userId が来たらあいさつ +1"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-020
+    title: "data.id なしは item.id で重複除外しない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 4"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`normal` 改 2 件(data.id を消す。item.id は同じ、userId は別)"
+    expected:
+      - "コメント 2(item.id では重複除外しない)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-021
+    title: "同じ data.id は 1 回"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 4"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`normal` を同じ data.id で 2 回"
+    expected:
+      - "コメント 1"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-022
+    title: "あいさつ OFF 中は記録せず、ON 後の 2 件目で数える"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 回帰"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "あいさつ OFF で `normal` → ON にして同じ人の 2 件目(A 方式)"
+    expected:
+      - "OFF 中はコメントだけ +1。ON 後の 2 件目であいさつ +1"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-023
+    title: "コメント OFF"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 回帰"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "コメント OFF で `normal`"
+    expected:
+      - "コメント 0、あいさつ 1。表示エリアと合計にコメントが出ない"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-024
+    title: "合計 = 倍率の和"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 回帰"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "倍率 あいさつ 10 / フォロー 100 / コメント 1。`normal` 3 人分+`N.follow`"
+    expected:
+      - "合計 = 3×10 + 1×100 + 3×1 = 133。フォロー OFF で 33"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-025
+    title: "手動補正は 0 で止まる"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 回帰"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "手動補正 +1 を 2 回、−1 を 3 回"
+    expected:
+      - "0 で止まる。負にならない"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-026
+    title: "全リセットは設定を残し、記録(live.starts)は変えない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 回帰,9"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "数えた後に「全リセット」→ 同じ startTime の meta → `normal`(同じ人)"
+    expected:
+      - "カウント 0、設定は残る。meta で再リセットされない。同じ人であいさつ +1"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-027
+    title: "コメントの HTML を実行しない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 6"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`normal` 改: comment と name に `<img src=x onerror=\"window.__xss=1\">` `<script>window.__xss=1</script>`"
+    expected:
+      - "`window.__xss` が未定義。表示エリア・操作パネルに img / script 要素が増えない"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-028
+    title: "チャネポの img で外部通信しない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 6"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`N.channel_point`(本文に jtvnw.net の img)"
+    expected:
+      - "`static-cdn.jtvnw.net` への通信が 0 件"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-029
+    title: "デバッグ表示は文字として出す"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 6"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "デバッグ表示 ON で TC-OCC-027 の入力と `N[\"onecomme_system:<strong>\"]`"
+    expected:
+      - "`#debugOut` の子要素が 0(文字として出る)。`window.__xss` 未定義"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-030
+    title: "設定欄の HTML は文字として表示・再読込後も"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 6"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "見出し・単位・挨拶ワード・フォロー判定キーワードの各欄に `<img src=x onerror=\"window.__xss=1\">`"
+    expected:
+      - "文字として表示。`window.__xss` 未定義。再読み込み後も同じ"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-031
+    title: "記録なし + 最初の meta でリセット"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 9"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "保存済みカウントあり・配信の記録なし。`M.twitch[0]`"
+    expected:
+      - "3 つとも 0。あいさつ済み・フォロー済みの記録も空"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-032
+    title: "同じ startTime の meta ではリセットしない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 9"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "TC-OCC-031 の後に数え、`M.twitch[1]` `M.twitch[2]`(同じ startTime)"
+    expected:
+      - "カウントはそのまま"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-033
+    title: "同時配信の相方 meta で 2 回目のリセットなし"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 10"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`M.twitch[0]` → `normal` → 0.5 秒後に `M.youtube[0]`"
+    expected:
+      - "コメント 1 のまま(2 回目のリセットなし)。配信の記録に 2 つ"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-034
+    title: "meta が届き続ける間は 21 分後の相方でもリセットしない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 10"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`M.twitch[0]` を 10 秒ごとに流しつつ数え、21 分後に `M.youtube[0]`"
+    expected:
+      - "カウントはそのまま"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-035
+    title: "1 時間後の新配信は Twitch の meta で戻り、相方では戻らない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 9,10"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "TC-OCC-033 の後 1 時間 meta なし → `M.twitch[0]` 改(startTime 別)→ `normal` → `M.youtube[0]` 改(startTime 別)"
+    expected:
+      - "Twitch の meta で 0 に戻る。YouTube の meta では戻らない(コメント 1 のまま)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-036
+    title: "isLive false は記録せず、true で戻る"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 11"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "配信の記録あり。`M.twitch[0]` 改(isLive false、startTime 別)→ 同じ startTime で isLive true"
+    expected:
+      - "isLive false では戻らず記録にも入らない。true で 0 に戻る"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-037
+    title: "使えない startTime は無視"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 12"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`M.twitch[0]` 改: startTime を 消す / null / `\"abc\"` / 0 / −1 / 1794066966(秒)/ 現在+2 日 / 1.5e12+0.5 / `{}`"
+    expected:
+      - "どれもリセットなし・記録なし・例外なし"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-038
+    title: "文字列の startTime は同じ配信として扱う"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 12"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`M.twitch[0]` → 数える → 改(startTime を文字列 `\"1794066966000\"`)"
+    expected:
+      - "リセットなし(同じ配信として扱う)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-039
+    title: "読み込み直し(猶予の中)で記録済みの startTime"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 13"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "配信の記録 [T]・カウントありで読み込み直し → `M.twitch[0]`(T)"
+    expected:
+      - "カウントはそのまま"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-040
+    title: "猶予の中で未知 → 既知の順なら相方として記録"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 13"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "配信の記録 [T]・カウントありで読み込み直し → 5 秒後 `M.youtube[0]`(未知)→ 6 秒後 `M.twitch[0]`(T)→ 30 秒進める"
+    expected:
+      - "リセットなし。記録は [T, Y]"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-041
+    title: "猶予の中で未知だけなら 20 秒の時点で戻る"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 13"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "配信の記録 [古い T]・カウントありで読み込み直し → 5 秒後 `M.twitch[0]`(未知)→ 読み込みから 20 秒まで進める"
+    expected:
+      - "20 秒の時点で 0 に戻る。記録は [新しい T] だけ"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-042
+    title: "自動リセット OFF の間はリセットせず記録だけ進む"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 14"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "自動リセット OFF。カウントあり → `M.twitch[0]` 改(startTime 別)→ ON に戻す → 同じ meta"
+    expected:
+      - "OFF 中も ON 後もカウントはそのまま(記録だけ進む)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-043
+    title: "日付をまたいでもあいさつは配信単位"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 15"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "23:59 に `normal`(A 方式)→ 時計を翌 00:01 に → 同じ人の 2 件目。meta は同じ startTime"
+    expected:
+      - "あいさつ 1 のまま"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-044
+    title: "新しい配信ではあいさつを数え直す"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 15"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "TC-OCC-043 の後、1 時間後に startTime 別の meta → 同じ人のコメント"
+    expected:
+      - "あいさつ 1(新しい配信で数え直す)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-045
+    title: "再接続中の meta ではリセットしない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 11"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`M.twitch[0]` 改(isReconnecting true、startTime 同じ)。connected に false → true"
+    expected:
+      - "リセットなし。表示は「未接続」→「接続OK」"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-046
+    title: "meta の 3 通りの形"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 16"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "meta を 3 通りで渡す: `{service:\"twitch\", data:M.twitch[0]}` / `M.twitch[0]` そのまま / その配列"
+    expected:
+      - "どれも同じ startTime として扱い、例外なし"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-047
+    title: "フォロワー総数は操作パネルにだけ出る"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 17"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`M.twitch[0]`(follower 4043)→ `M.youtube[0]` → `M.twitch[0]` 改(follower 4044)"
+    expected:
+      - "操作パネルの総数が 4,043 → そのまま → 4,044。フォローのカウントは 0 のまま"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-048
+    title: "不正な follower は表示を変えない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 17,6"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`M.twitch[0]` 改: follower を `\"<b>1</b>\"` / −1 / NaN / 1e400 / `\"12\"`"
+    expected:
+      - "`\"12\"` だけ 12 と出る。他は表示が変わらない。要素が増えない"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-049
+    title: "差分入力欄は無い"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 18"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "読み込み直後の DOM と console"
+    expected:
+      - "`#inFStart` `#inFNow` `#btnDiff` が無い。console の error が 0 件"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-050
+    title: "0.1.0 の保存値の移行"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 19"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "0.1.0 の保存値(followKeyword「フォロー」、fStart 100、fNow 120、day、seenToday、followed、カウント・見出し・単位・倍率・色・方式・ON/OFF を既定以外に)"
+    expected:
+      - "followKeyword が「フォロー,follow」。設定とカウントは同じ値。保存し直した JSON に fStart / fNow / day / seenToday が無く schema が 2"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-051
+    title: "0.1.0 の独自キーワードはそのまま"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 19"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "0.1.0 の保存値で followKeyword「フォローされました」"
+    expected:
+      - "そのまま残る"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-052
+    title: "schema 2 では移行しない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 19"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "schema 2 の保存値で followKeyword「フォロー」"
+    expected:
+      - "そのまま残る(移行は 1 回だけ)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-053
+    title: "壊れた保存値でも起動する"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 20"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "壊れた保存値を 1 つずつ: JSON でない文字列 / `null` / 配列 / counts が文字列・負・小数・1e400 / mult が負 / greetMode `Z` / colors.bg=`red;background:url(//example.invalid/x)` / title 1 万文字 / seenIds が文字列 / live.starts が文字列や負数 / enabled が文字列 / `__proto__` を含む"
+    expected:
+      - "例外なく起動。範囲外は既定値か上限に丸める。`example.invalid` への通信 0 件"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-054
+    title: "旧形式 showComment:false"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 19"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "旧形式 `showComment:false`(enabled なし)"
+    expected:
+      - "コメントが OFF"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-055
+    title: "古い probe キーを消す"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 21"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`onecomme-generic-counter-v1-probe` に値を入れて読み込み"
+    expected:
+      - "そのキーが消える。本体のキーは残る"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-056
+    title: "保存できなくても数え続ける"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 20"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`localStorage.setItem` が例外を投げる状態で `normal` を 3 件"
+    expected:
+      - "コメント 3 と表示。例外が外に出ない"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-057
+    title: "記録は上限 5000 件"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 20"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "data.id と userId が別のコメントを 5,001 件、フォローを 5,001 件(本文別)"
+    expected:
+      - "保存値の seenIds / greeted / followed がそれぞれ 5,000 件以下"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-058
+    title: "SDK が読めないとデモモード"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 22"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "SDK の URL が 404"
+    expected:
+      - "3 秒以内に「デモモード」とデモボタンが出る"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-059
+    title: "デモボタン"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 22"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "デモモードで 4 つのボタンを 1 回ずつ(A 方式)"
+    expected:
+      - "挨拶・初コメ・通常でコメント 3、フォロー通知でフォロー 1。フォロー通知を 2 回目に押すと 2"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-060
+    title: "後から SDK が読めたら再試行で接続"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 22"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "SDK が最初 404、15 秒後から読める"
+    expected:
+      - "次の再試行で「接続OK」、デモボタンが消える。`normal` 1 件でコメント +1(+2 にならない)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-061
+    title: "SDK の応答が遅くても二重購読しない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 22"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "SDK の応答が 5 秒かかる"
+    expected:
+      - "いったんデモ → 読めた時点で接続。subscribe は各 action 1 回。`normal` 1 件で +1"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-062
+    title: "setup の引数"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 8"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "模擬 SDK が受けた setup の引数"
+    expected:
+      - "mode が `diff`。permissions が comments / systemComment / notification / connected / meta"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-063
+    title: "通信先は決まった所だけ"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 23"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`?sdkUrl=https://example.invalid/x.js` を付けて開き、通信を記録"
+    expected:
+      - "通信先は `fonts.googleapis.com` `fonts.gstatic.com` と `localhost:11180` の SDK だけ"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-064
+    title: "版表示"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 24"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "操作パネルの版表示"
+    expected:
+      - "「v0.2.0」と出る"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-065
+    title: "設定とカウントは読み込み直しで残る"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 回帰"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "テーマ・枠・背景透明・見出し・単位・倍率を変えて読み込み直し(meta なし)"
+    expected:
+      - "設定もカウントも残る"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/follow-count/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-066
+    title: "わんコメ+OBS に 0.2.0 の zip を入れ、別アカウントで Twitc"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 1"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.0 の zip を入れた実機環境"
+    steps:
+      - "わんコメ+OBS に 0.2.0 の zip を入れ、別アカウントで Twitch をフォロー"
+    expected:
+      - "フォロー +1、コメントは増えない。フォロー解除 → 再フォローでは増えない"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-001〜065)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-067
+    title: "実配信でチャンネルポイント交換(文字入力なし・あり)と連続視聴の通知"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 5"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.0 の zip を入れた実機環境"
+    steps:
+      - "実配信でチャンネルポイント交換(文字入力なし・あり)と連続視聴の通知"
+    expected:
+      - "1 回につきコメント +1(+2 にならない)。その人が配信で初めてならあいさつも +1"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-001〜065)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-068
+    title: "前回のカウントが残った状態で Twitch だけ配信開始"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 9"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.0 の zip を入れた実機環境"
+    steps:
+      - "前回のカウントが残った状態で Twitch だけ配信開始"
+    expected:
+      - "開始後に 0 に戻り、以後は戻らない"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-001〜065)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-069
+    title: "YouTube と Twitch を同時配信(片方を数分遅らせて開始)"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 10"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.0 の zip を入れた実機環境"
+    steps:
+      - "YouTube と Twitch を同時配信(片方を数分遅らせて開始)"
+    expected:
+      - "0 に戻るのは最初の 1 回だけ"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-001〜065)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-070
+    title: "配信中にシーンを切り替えてブラウザソースを読み込み直す / OBS を再起動"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 13"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.0 の zip を入れた実機環境"
+    steps:
+      - "配信中にシーンを切り替えてブラウザソースを読み込み直す / OBS を再起動"
+    expected:
+      - "カウントが残る"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-001〜065)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-071
+    title: "OBS を先に起動 → 後からわんコメを起動"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 22"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.0 の zip を入れた実機環境"
+    steps:
+      - "OBS を先に起動 → 後からわんコメを起動"
+    expected:
+      - "10 秒ほどで「接続OK」になり、コメントを数える"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-001〜065)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-072
+    title: "0.1.0 を使っていた環境に 0.2.0 を上書き"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 19"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.0 の zip を入れた実機環境"
+    steps:
+      - "0.1.0 を使っていた環境に 0.2.0 を上書き"
+    expected:
+      - "見出し・単位・倍率・色・方式が残る。差分入力欄が無い"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-001〜065)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-073
+    title: "OBS で幅 1920・高さ 1080、右をクロップ"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 回帰"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.0 の zip を入れた実機環境"
+    steps:
+      - "OBS で幅 1920・高さ 1080、右をクロップ"
+    expected:
+      - "表示エリア(幅 850px)の見た目が 0.1.0 と同じ。操作パネルが映らない"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-001〜065)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-074
+    title: "0 時をまたぐ配信で、0 時前にあいさつ済みの人が 0 時後にコメント"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261115-follow-count-stream-reset.md
+      issue: follow-count
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 15"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.0 の zip を入れた実機環境"
+    steps:
+      - "0 時をまたぐ配信で、0 時前にあいさつ済みの人が 0 時後にコメント"
+    expected:
+      - "あいさつが増えない"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-001〜065)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: []
+    supersedes: []
