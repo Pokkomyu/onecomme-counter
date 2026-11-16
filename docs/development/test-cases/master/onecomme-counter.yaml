@@ -1,8 +1,8 @@
 meta:
   repo: onecomme-counter
-  feature: follow-count
-  ticket_id: follow-count
-  updated: 2026-11-15
+  feature: poko-chatcount
+  ticket_id: poko-chatcount
+  updated: 2026-11-16
 
 test_cases:
   - test_case_id: TC-OCC-001
@@ -847,6 +847,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "数えた後に「全リセット」→ 同じ startTime の meta → `normal`(同じ人)"
     expected:
@@ -1012,6 +1013,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "保存済みカウントあり・配信の記録なし。`M.twitch[0]`"
     expected:
@@ -1045,6 +1047,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "TC-OCC-031 の後に数え、`M.twitch[1]` `M.twitch[2]`(同じ startTime)"
     expected:
@@ -1078,6 +1081,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "`M.twitch[0]` → `normal` → 0.5 秒後に `M.youtube[0]`"
     expected:
@@ -1111,6 +1115,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "`M.twitch[0]` を 10 秒ごとに流しつつ数え、21 分後に `M.youtube[0]`"
     expected:
@@ -1144,6 +1149,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "TC-OCC-033 の後 1 時間 meta なし → `M.twitch[0]` 改(startTime 別)→ `normal` → `M.youtube[0]` 改(startTime 別)"
     expected:
@@ -1177,6 +1183,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "配信の記録あり。`M.twitch[0]` 改(isLive false、startTime 別)→ 同じ startTime で isLive true"
     expected:
@@ -1210,6 +1217,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "`M.twitch[0]` 改: startTime を 消す / null / `\"abc\"` / 0 / −1 / 1794066966(秒)/ 現在+2 日 / 1.5e12+0.5 / `{}`"
     expected:
@@ -1243,6 +1251,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "`M.twitch[0]` → 数える → 改(startTime を文字列 `\"1794066966000\"`)"
     expected:
@@ -1276,6 +1285,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "配信の記録 [T]・カウントありで読み込み直し → `M.twitch[0]`(T)"
     expected:
@@ -1309,6 +1319,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "配信の記録 [T]・カウントありで読み込み直し → 5 秒後 `M.youtube[0]`(未知)→ 6 秒後 `M.twitch[0]`(T)→ 30 秒進める"
     expected:
@@ -1342,6 +1353,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "配信の記録 [古い T]・カウントありで読み込み直し → 5 秒後 `M.twitch[0]`(未知)→ 読み込みから 20 秒まで進める"
     expected:
@@ -1375,6 +1387,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "自動リセット OFF。カウントあり → `M.twitch[0]` 改(startTime 別)→ ON に戻す → 同じ meta"
     expected:
@@ -1408,6 +1421,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "23:59 に `normal`(A 方式)→ 時計を翌 00:01 に → 同じ人の 2 件目。meta は同じ startTime"
     expected:
@@ -1441,6 +1455,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "TC-OCC-043 の後、1 時間後に startTime 別の meta → 同じ人のコメント"
     expected:
@@ -1474,6 +1489,7 @@ test_cases:
     automation_type: e2e
     precondition:
       - "mock SDK を差した template/index.html を Playwright で開く"
+      - "自動リセット ON の保存値(autoReset: true)で開く(0.2.1 から既定は OFF)"
     steps:
       - "`M.twitch[0]` 改(isReconnecting true、startTime 同じ)。connected に false → true"
     expected:
@@ -2104,7 +2120,7 @@ test_cases:
     steps:
       - "操作パネルの版表示"
     expected:
-      - "「v0.2.0」と出る"
+      - "「v0.2.1」と出る"
     evidence:
       required:
         - junit
@@ -2447,4 +2463,899 @@ test_cases:
     skip_reason: null
     last_reviewed: null
     intent_ids: []
+    supersedes: []
+  - test_case_id: TC-OCC-075
+    title: "既定は自動リセット OFF で、切り替えが保存される"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 1"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "保存なしで開く"
+    expected:
+      - "チェック欄は外れている。チェックを入れて外すと保存値の `autoReset` は false"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-002]
+    supersedes: []
+  - test_case_id: TC-OCC-076
+    title: "既定 OFF では最初の meta でも戻らず、記録だけ進む"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 1, 4"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`autoReset` のない保存値(挨拶 4・フォロー 3・コメント 7、あいさつ済みあり)→ `M.twitch[0]`"
+    expected:
+      - "カウントは 4・3・7 のまま。あいさつ済み・フォロー済みも残る。`live.starts` は `[T_TW]`"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-001]
+    supersedes: []
+  - test_case_id: TC-OCC-077
+    title: "既定 OFF では猶予の 20 秒を過ぎても戻らない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 4"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`autoReset` のない保存値(カウントあり、`live.starts` は 5 時間前)で開く → 5 秒後に `M.twitch[0]` → 20 秒の猶予が明けるまで進める(クラッシュ後の再配信の模擬)"
+    expected:
+      - "カウントは残る。`live.starts` は `[T_TW]` に入れ替わる"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-001]
+    supersedes: []
+  - test_case_id: TC-OCC-078
+    title: "ON の保存値は ON のまま開き、meta で戻る"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 2"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "ON の保存値(カウントあり)で開く → `M.twitch[0]`"
+    expected:
+      - "チェック欄は入っている。カウントは 0・0・0"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-002]
+    supersedes: []
+  - test_case_id: TC-OCC-079
+    title: "autoReset:false の保存値は OFF のまま"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 2"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`autoReset: false` の保存値(カウントあり)→ `M.twitch[0]`"
+    expected:
+      - "チェック欄は外れている。カウントは残る"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-002]
+    supersedes: []
+  - test_case_id: TC-OCC-080
+    title: "autoReset が真偽値でない保存値は OFF になる"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 3, 17"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`autoReset` が `\"true\"` / `1` / `null` / `{}` の保存値(カウントあり)→ `M.twitch[0]`"
+    expected:
+      - "どれもチェック欄は外れ、カウントは残る"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-002]
+    supersedes: []
+  - test_case_id: TC-OCC-081
+    title: "0.1.0 の保存値からの移行でも OFF"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 3"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "0.1.0 の保存値(`OLD()`)→ `M.twitch[0]`"
+    expected:
+      - "チェック欄は外れている。カウントは 5・3・7 のまま"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-002]
+    supersedes: []
+  - test_case_id: TC-OCC-082
+    title: "途中で ON にすると次の配信から戻る"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 4, 7"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "既定のまま配信 1 で数える → チェックを入れる → 同じ meta → 1 時間後に別の startTime の meta"
+    expected:
+      - "同じ配信の間は残る。次の配信で 0・0・0"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-002]
+    supersedes: []
+  - test_case_id: TC-OCC-083
+    title: "自動リセットの切り替えは読み込み直しで残る"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 7"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "チェックを入れる → 再読み込み → 外す → 再読み込み"
+    expected:
+      - "再読み込みのたびに直前の状態のまま"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-002]
+    supersedes: []
+  - test_case_id: TC-OCC-084
+    title: "既定 OFF でも全リセットの後は 0 から数え直す"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 5, 6"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "既定のまま配信 1 で同じ人がコメント → 全リセット → 同じ人がもう一度コメント"
+    expected:
+      - "全リセットで 0・0・0。そのあと挨拶 1・コメント 1(あいさつ済みも消えている)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-001]
+    supersedes: []
+  - test_case_id: TC-OCC-085
+    title: "既定 OFF では次の配信になってもあいさつは 1 回"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 5"
+      business_impact: 配信のカウンター表示が実際とずれる(OBS 表示・集計)
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "既定のまま配信 1 でコメント → 1 時間後に別の startTime の meta → 同じ人が別の ID でコメント"
+    expected:
+      - "挨拶は 1 のまま、コメントは 2(あいさつ済みは配信をまたいで残る)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-001]
+    supersedes: []
+  - test_case_id: TC-OCC-086
+    title: "名前は Poko-ChatCount で、旧名は残っていない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 9"
+      business_impact: 名前・版・配布物の食い違いで、入れ替えに失敗する
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`template/index.html` を開く・読む"
+    expected:
+      - "`document.title` に「Poko-ChatCount」が入る。ファイルに「汎用カウンター」「色々カウンター」がない"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-003]
+    supersedes: []
+  - test_case_id: TC-OCC-087
+    title: "保存キー・SDK の場所・旧キー・schema は変わらない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 10"
+      business_impact: 名前・版・配布物の食い違いで、入れ替えに失敗する
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "`template/index.html` を読む"
+    expected:
+      - "`storageKey` は `onecomme-generic-counter-v1`、`sdkUrl` は `http://localhost:11180/templates/preset/__origin/js/onesdk.js`、`legacyKeys` は `[\"onecomme-generic-counter-v1-probe\"]`、`schema` は 2(0.2.0 と同じ値を試験に直接書く)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-004]
+    supersedes: []
+  - test_case_id: TC-OCC-088
+    title: "README・AGENTS・package・方針の名前と zip 名"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - README.md
+        - AGENTS.md
+        - package.json
+        - docs/development/test-asset-lifecycle-policy.md
+    risk:
+      failure_mode: "DRBFM 行 3, 13, 14, 15"
+      business_impact: 名前・版・配布物の食い違いで、入れ替えに失敗する
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "README.md・AGENTS.md・package.json・policy を読む"
+    expected:
+      - "README に「Poko-ChatCount」と `Poko-ChatCount-<CONFIG.version>.zip` があり、「配信が始まると自動で 0 に戻ります」と `onecomme-counter-0` がない。AGENTS.md・package.json・policy に「色々カウンター」がなく「Poko-ChatCount」がある"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-003]
+    supersedes: []
+  - test_case_id: TC-OCC-089
+    title: "package の名前と版が index.html と合っている"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - package.json
+        - package-lock.json
+    risk:
+      failure_mode: "DRBFM 行 14, 15"
+      business_impact: 名前・版・配布物の食い違いで、入れ替えに失敗する
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "package.json・package-lock.json を読む"
+    expected:
+      - "`name` は `onecomme-counter-tests` のまま。version は 3 か所とも `CONFIG.version` と同じ"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-004]
+    supersedes: []
+  - test_case_id: TC-OCC-090
+    title: "配布 zip の中身とフォルダ名"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 12"
+      business_impact: 名前・版・配布物の食い違いで、入れ替えに失敗する
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "handoff で作った Poko-ChatCount-0.2.1.zip"
+    steps:
+      - "handoff で作った `Poko-ChatCount-0.2.1.zip` を `unzip -l` で見る"
+    expected:
+      - "中身は `Poko-ChatCount/index.html` だけ。フォルダ名は半角英字とハイフンだけ"
+    evidence:
+      required:
+        - log
+      path: null
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: "handoff の run.sh が unzip -l で確認する"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-003]
+    supersedes: []
+  - test_case_id: TC-OCC-091
+    title: "わんコメの一覧に Poko-ChatCount と出る"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 11"
+      business_impact: 名前・版・配布物の食い違いで、入れ替えに失敗する
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.1 の zip を入れた実機環境"
+    steps:
+      - "わんコメのテンプレート一覧に zip をドラッグ&ドロップ → OBS にドラッグ"
+    expected:
+      - "一覧に「Poko-ChatCount」と出る。OBS に表示され、操作パネルの版は v0.2.1"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-075〜089)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-003]
+    supersedes: []
+  - test_case_id: TC-OCC-092
+    title: "旧ソースから入れ替えても設定とカウントが残る"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 10, 11"
+      business_impact: 名前・版・配布物の食い違いで、入れ替えに失敗する
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.1 の zip を入れた実機環境"
+    steps:
+      - "「色々カウンター」を使っていた OBS で、旧ソースを消して Poko-ChatCount のソースを置く"
+    expected:
+      - "見出し・単位・倍率・色・カウントが引き継がれる。旧ソースを消した後は数が飛ばない"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-075〜089)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-004]
+    supersedes: []
+  - test_case_id: TC-OCC-093
+    title: "0.2.0 を使っていた環境で自動リセットを外す"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 2"
+      business_impact: 名前・版・配布物の食い違いで、入れ替えに失敗する
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.1 の zip を入れた実機環境"
+    steps:
+      - "0.2.0 を使っていた環境で 0.2.1 を開く → チェックを外す → 配信を始める"
+    expected:
+      - "開いた直後はチェックが入っている。外した後は配信開始で 0 に戻らない"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-075〜089)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-002]
+    supersedes: []
+  - test_case_id: TC-OCC-094
+    title: "OBS を終了して再開してもカウントが残る"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 4"
+      business_impact: 名前・版・配布物の食い違いで、入れ替えに失敗する
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.1 の zip を入れた実機環境"
+    steps:
+      - "チェックを外した状態で配信中に OBS を終了 → OBS を起動して配信を始め直す"
+    expected:
+      - "カウントが残る。全リセットを押すと 0 に戻る"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "可能な範囲は mock 試験(TC-OCC-075〜089)で担保済み。実機固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-001]
+    supersedes: []
+  - test_case_id: TC-OCC-095
+    title: "全リセットを押すと確認欄が出て、まだ数は変わらない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 18"
+      business_impact: 手で 0 に戻せない・数が意図せず消える
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "数がある状態で全リセットを押す"
+    expected:
+      - "確認欄が出る。数は変わらない。ダイアログは出ない"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-001]
+    supersedes: []
+  - test_case_id: TC-OCC-096
+    title: "確認欄で「やめる」を押すと何も変わらない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 18"
+      business_impact: 手で 0 に戻せない・数が意図せず消える
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "数がある状態で全リセット → 「やめる」 → 同じ人がもう一度コメント"
+    expected:
+      - "確認欄が閉じる。カウントはそのまま。挨拶は増えない(あいさつ済みが残る)"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-001]
+    supersedes: []
+  - test_case_id: TC-OCC-097
+    title: "確認欄で「0 に戻す」を押すと 0 に戻り設定は残る"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 18"
+      business_impact: 手で 0 に戻せない・数が意図せず消える
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "見出しを変え、数がある状態で全リセット → 「0 に戻す」 → 開き直す"
+    expected:
+      - "0・0・0、確認欄が閉じる。見出しと live.starts は残る。開き直しても 0"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-001]
+    supersedes: []
+  - test_case_id: TC-OCC-098
+    title: "画面が confirm・alert・prompt を使っていない"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 19"
+      business_impact: 手で 0 に戻せない・数が意図せず消える
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "template/index.html の中を調べる"
+    expected:
+      - "confirm( alert( prompt( がない"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-001]
+    supersedes: []
+  - test_case_id: TC-OCC-099
+    title: "押したテーマのボタンだけ色が付き、開き直しても残る"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 20"
+      business_impact: どのテーマ・設定を選んでいるか分からない
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "テーマを順に全部押す。宇宙猫 → ブルーの順に押して開き直す"
+    expected:
+      - "押したボタンだけに on。開き直してもブルーだけに on"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-001]
+    supersedes: []
+  - test_case_id: TC-OCC-100
+    title: "どのテーマとも一致しない色ならどれにも付かず、選択色はピンク"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 20, 21"
+      business_impact: どのテーマ・設定を選んでいるか分からない
+    test_type: ui
+    automation_level: auto
+    automation_type: e2e
+    precondition:
+      - "mock SDK を差した template/index.html を Playwright で開く"
+    steps:
+      - "どのテーマとも一致しない色の保存値で開く → テーマを 1 つ押す"
+    expected:
+      - "開いた直後はどれにも on がない。押した後、.tg.on の背景は rgb(255, 98, 201)。#status.ok は緑のまま"
+    evidence:
+      required:
+        - junit
+      path: docs/development/evidence/poko-chatcount/mock-test-run.log
+    review:
+      review_required: false
+      review_reason: []
+      blocking_release: false
+    manual_reduction_plan: null
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-001]
+    supersedes: []
+  - test_case_id: TC-OCC-101
+    title: "OBS で全リセットが効き、選択中のピンクが読める"
+    status: active
+    source:
+      drbfm: docs/development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md
+      issue: poko-chatcount
+      code:
+        - template/index.html
+    risk:
+      failure_mode: "DRBFM 行 18, 21"
+      business_impact: 手で 0 に戻せない・数が意図せず消える
+    test_type: ui
+    automation_level: manual
+    automation_type: human_review
+    precondition:
+      - "わんコメ + OBS に 0.2.1 の zip を入れた実機環境"
+    steps:
+      - "OBS のブラウザソースを「対話」で開き、全リセット → 「0 に戻す」。テーマを押す"
+    expected:
+      - "確認欄が出て 0 に戻る。選択中のボタンがピンクで読める"
+    evidence:
+      required:
+        - screenshot
+      path: null
+    review:
+      review_required: true
+      review_reason: [実機待ち(実装役では実施できない)]
+      blocking_release: false
+    manual_reduction_plan: "確認欄の動きとピンクの色は mock 試験(TC-OCC-095〜100)で担保済み。OBS 固有の確認のみ残す"
+    skip_reason: null
+    last_reviewed: null
+    intent_ids: [DI-poko-chatcount-001]
     supersedes: []

@@ -1,8 +1,8 @@
 {
   "name": "onecomme-counter-tests",
   "private": true,
-  "version": "0.2.0",
-  "description": "色々カウンターの自動試験(配布 zip には含めない)",
+  "version": "0.2.1",
+  "description": "Poko-ChatCount の自動試験(配布 zip には含めない)",
   "scripts": { "test": "playwright test" },
   "devDependencies": { "@playwright/test": "1.49.1" }
 }

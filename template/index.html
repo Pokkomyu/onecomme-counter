@@ -2,9 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>汎用カウンター for わんコメ</title>
+<title>Poko-ChatCount</title>
 <!--
-  汎用カウンターツール（わんコメ / OneComme カスタムテンプレート）
+  Poko-ChatCount（わんコメ / OneComme カスタムテンプレート）
   ・配布時の注意：わんコメSDK（onesdk.js）の利用規約に従い、
     SDKのライセンス・著作権表記を削除・改変せずそのまま保持してください。
     本ファイルを配布する場合も、この注意書きを残してください。
@@ -25,6 +25,7 @@
   --panel:#2b2b33;       /* 操作エリアの背景 */
   --panel-text:#f3f0f2;  /* 操作エリアの文字色 */
   --ok:#3fc380;
+  --sel:#ff62c9;
   --ng:#e8636f;
 }
 *{box-sizing:border-box}
@@ -88,7 +89,7 @@ body{
 }
 .note{color:#b8b0b4;font-size:15px}
 #ctrl button.tg{background:#3a3a46}
-#ctrl button.tg.on{background:var(--ok);color:#10281c;font-weight:800}
+#ctrl button.tg.on{background:var(--sel);color:#2b0a1f;font-weight:800}
 </style>
 </head>
 <body>
@@ -136,6 +137,7 @@ body{
     <button id="btnReset" class="danger">全リセット</button>
     <button id="btnDebug">デバッグ表示 ON/OFF</button>
   </div>
+  <div class="line" id="resetConfirm" style="display:none">本当に 0 に戻しますか? <button id="btnResetYes" class="danger">0 に戻す</button><button id="btnResetNo">やめる</button></div>
   <div id="debugOut"></div>
 
   <div id="demoBox">
@@ -155,7 +157,7 @@ body{
    設定（ここを編集すると名前・初期値などをまとめて変更できます）
    ===================================================================== */
 const CONFIG = {
-  version: "0.2.0",
+  version: "0.2.1",
   storageKey: "onecomme-generic-counter-v1",
   sdkUrl: "http://localhost:11180/templates/preset/__origin/js/onesdk.js",
   // カウンター名（表示・操作パネル共通）
@@ -171,7 +173,7 @@ const CONFIG = {
     enabled: { greet: true, follow: true, comment: true },  // 各カウンターのON/OFF初期値
     transparentBg: false,
     frame: false,   // 全体の枠（初期値：なし）
-    autoReset: true,   // 配信が始まったら自動で 0 に戻す
+    autoReset: false,  // 配信が始まったら自動で 0 に戻す（既定は OFF。手動の全リセットが基本）
     colors: {   // 色の初期値
       bg: "#fff7f0", card: "#ffffff", accent: "#ff7a9c",
       accentSub: "#ffd3df", text: "#4a3a3f", sub: "#9b8a8f"
@@ -463,6 +465,12 @@ function refreshUI() {
   t.classList.toggle("on", state.transparentBg);
   t.textContent = "背景を透明にする：" + (state.transparentBg ? "ON" : "OFF");
   $("#togAutoReset").checked = !!state.autoReset;
+  // テーマ名は保存しない。いまの色がテーマの色と全部一致したら、そのボタンを選択中にする
+  document.querySelectorAll("[data-theme]").forEach(b => {
+    const th = THEMES[b.dataset.theme];
+    b.classList.toggle("on", Object.keys(CSS_VARS).every(k =>
+      String(state.colors[k] || "").toLowerCase() === String(th[k] || "").toLowerCase()));
+  });
 }
 document.querySelectorAll("[data-tog]").forEach(b => b.addEventListener("click", () => {
   const k = b.dataset.tog; state.enabled[k] = !state.enabled[k]; save(); refreshUI(); render();
@@ -499,9 +507,12 @@ document.querySelectorAll("[data-adj]").forEach(b => b.addEventListener("click",
   const k = b.dataset.adj;
   state.counts[k] = Math.max(0, state.counts[k] + Number(b.dataset.v)); save(); render();
 }));
-$("#btnReset").addEventListener("click", () => {
-  if (!confirm("カウントを全てリセットします。よろしいですか？（設定は残ります）")) return;
-  resetCounts(); save(); render();   // 配信の記録（live.starts）は変えない
+// OBS のブラウザソースでは JS の確認ダイアログが出せず常に「いいえ」扱いになるため、確認は画面の中に出す
+$("#btnReset").addEventListener("click", () => { $("#resetConfirm").style.display = ""; });
+$("#btnResetNo").addEventListener("click", () => { $("#resetConfirm").style.display = "none"; });
+$("#btnResetYes").addEventListener("click", () => {
+  resetCounts(); save(); render();   // 設定と配信の記録（live.starts）は変えない
+  $("#resetConfirm").style.display = "none";
 });
 $("#btnDebug").addEventListener("click", () => {
   const o = $("#debugOut"); o.style.display = o.style.display === "block" ? "none" : "block";

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-`onecomme-counter`(色々カウンター(わんコメ用テンプレート))で作業するコーディングエージェント向けの作業ルール。
+`onecomme-counter`(Poko-ChatCount。わんコメ用テンプレート)で作業するコーディングエージェント向けの作業ルール。
 
 ## 基本
 
