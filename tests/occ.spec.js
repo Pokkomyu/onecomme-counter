@@ -1,4 +1,4 @@
-// onecomme-counter 0.2.0 自動試験（mock）TC-OCC-001..065
+// onecomme-counter 0.2.1 自動試験（mock）TC-OCC-001..065, 075..089, 095..100
 // 実行: npm test   （模擬 SDK は page.route で差し込む。index.html に試験用のフックは無い）
 const { test, expect } = require("@playwright/test");
 const fs = require("fs");
@@ -50,7 +50,8 @@ function makeCtx(page) {
     if (/Failed to load resource/.test(m.text())) return;   // 404 / 遮断した通信のブラウザ通知（ページの例外ではない）
     ctx.errs.push("console: " + m.text());
   });
-  page.on("dialog", d => d.accept());
+  // OBS のブラウザソースは JS のダイアログを出せないので、出たら失敗にする（0.2.0 の全リセット不具合を隠していた）
+  page.on("dialog", d => { ctx.errs.push("dialog: " + d.type() + " " + d.message()); d.dismiss().catch(() => {}); });
   page.on("request", r => { if (!r.url().startsWith("file:")) ctx.reqs.push(r.url()); });
 
   ctx.ready = async () => {
@@ -124,6 +125,8 @@ function makeCtx(page) {
 }
 const C = (greet, follow, comment) => ({ greet, follow, comment });
 const goodSeed = (counts, extra) => Object.assign({ schema: 2, counts, seenIds: [], greeted: [], followed: [], live: { starts: [] } }, extra || {});
+// 自動リセット ON の保存値(0.2.0 の既定と同じ状態)。既定は 0.2.1 から OFF
+const onSeed = (counts, extra) => goodSeed(counts || C(0, 0, 0), Object.assign({ autoReset: true }, extra || {}));
 
 /* ======================= フォロー(1〜11) ======================= */
 tc("TC-OCC-001", "フォロー通知を systemComment で 1 回", async ctx => {
@@ -295,11 +298,11 @@ tc("TC-OCC-025", "手動補正は 0 で止まる", async (ctx, page) => {
   expect((await ctx.counts()).greet).toBe(0);
 });
 tc("TC-OCC-026", "全リセットは設定を残し、記録(live.starts)は変えない", async (ctx, page) => {
-  await ctx.boot();
+  await ctx.boot({ seed: onSeed() });
   await ctx.meta(mt(0));
   await ctx.fill("#inTitle", "保持確認");
   await ctx.com(normal()); await ctx.sys(S("follow"));
-  await page.click("#btnReset");
+  await page.click("#btnReset"); await page.click("#btnResetYes");
   expect(await ctx.counts()).toEqual(C(0, 0, 0));
   expect((await ctx.store()).title).toBe("保持確認");
   await ctx.meta(mt(0));
@@ -349,7 +352,7 @@ tc("TC-OCC-030", "設定欄の HTML は文字として表示・再読込後も",
 });
 
 /* ======================= 配信開始リセット(31〜48) ======================= */
-const seededCounts = () => goodSeed(C(4, 3, 7), { greeted: ["old-user"], followed: ["old-follow"], seenIds: ["old-id"] });
+const seededCounts = () => goodSeed(C(4, 3, 7), { autoReset: true, greeted: ["old-user"], followed: ["old-follow"], seenIds: ["old-id"] });
 tc("TC-OCC-031", "記録なし + 最初の meta でリセット", async ctx => {
   await ctx.boot({ seed: seededCounts() });
   expect((await ctx.counts())).toEqual(C(4, 3, 7));
@@ -366,7 +369,7 @@ tc("TC-OCC-032", "同じ startTime の meta ではリセットしない", async 
   expect(await ctx.counts()).toEqual(C(1, 1, 1));
 });
 tc("TC-OCC-033", "同時配信の相方 meta で 2 回目のリセットなし", async ctx => {
-  await ctx.boot();
+  await ctx.boot({ seed: onSeed() });
   await ctx.meta(M.twitch[0]); await ctx.com(normal());
   await ctx.adv(500);
   await ctx.meta(M.youtube[0], "youtube");
@@ -374,14 +377,14 @@ tc("TC-OCC-033", "同時配信の相方 meta で 2 回目のリセットなし",
   expect((await ctx.store()).live.starts).toEqual([T_TW, T_YT]);
 });
 tc("TC-OCC-034", "meta が届き続ける間は 21 分後の相方でもリセットしない", async ctx => {
-  await ctx.boot();
+  await ctx.boot({ seed: onSeed() });
   await ctx.meta(M.twitch[0]); await ctx.com(normal());
   for (let i = 0; i < 126; i++) { await ctx.adv(10000); await ctx.meta(M.twitch[0]); }
   await ctx.meta(M.youtube[0], "youtube");
   expect((await ctx.counts()).comment).toBe(1);
 });
 tc("TC-OCC-035", "1 時間後の新配信は Twitch の meta で戻り、相方では戻らない", async ctx => {
-  await ctx.boot();
+  await ctx.boot({ seed: onSeed() });
   await ctx.meta(M.twitch[0]); await ctx.com(normal());
   await ctx.adv(500); await ctx.meta(M.youtube[0], "youtube");
   await ctx.adv(HOUR);
@@ -392,7 +395,7 @@ tc("TC-OCC-035", "1 時間後の新配信は Twitch の meta で戻り、相方�
   expect((await ctx.counts()).comment).toBe(1);
 });
 tc("TC-OCC-036", "isLive false は記録せず、true で戻る", async ctx => {
-  await ctx.boot({ seed: goodSeed(C(4, 3, 7), { live: { starts: [T_TW] } }) });
+  await ctx.boot({ seed: onSeed(C(4, 3, 7), { live: { starts: [T_TW] } }) });
   const T2 = T_TW + HOUR;
   await ctx.meta(mt(0, { isLive: false, startTime: T2 }));
   expect(await ctx.counts()).toEqual(C(4, 3, 7));
@@ -402,7 +405,7 @@ tc("TC-OCC-036", "isLive false は記録せず、true で戻る", async ctx => {
   expect((await ctx.store()).live.starts).toEqual([T2]);
 });
 tc("TC-OCC-037", "使えない startTime は無視", async (ctx, page) => {
-  await ctx.boot({ seed: goodSeed(C(4, 3, 7)) });
+  await ctx.boot({ seed: onSeed(C(4, 3, 7)) });
   const bad = [undefined, null, "abc", 0, -1, 1794066966, T0 + 2.5 * 24 * HOUR, 1.5e12 + 0.5, {}];
   for (const v of bad) {
     const m = mt(0);
@@ -413,18 +416,18 @@ tc("TC-OCC-037", "使えない startTime は無視", async (ctx, page) => {
   }
 });
 tc("TC-OCC-038", "文字列の startTime は同じ配信として扱う", async ctx => {
-  await ctx.boot();
+  await ctx.boot({ seed: onSeed() });
   await ctx.meta(M.twitch[0]); await ctx.com(normal());
   await ctx.meta(mt(0, { startTime: String(T_TW) }));
   expect((await ctx.counts()).comment).toBe(1);
 });
 tc("TC-OCC-039", "読み込み直し(猶予の中)で記録済みの startTime", async ctx => {
-  await ctx.boot({ seed: goodSeed(C(4, 3, 7), { live: { starts: [T_TW] } }), adv: 0 });
+  await ctx.boot({ seed: onSeed(C(4, 3, 7), { live: { starts: [T_TW] } }), adv: 0 });
   await ctx.meta(M.twitch[0]);
   expect(await ctx.counts()).toEqual(C(4, 3, 7));
 });
 tc("TC-OCC-040", "猶予の中で未知 → 既知の順なら相方として記録", async ctx => {
-  await ctx.boot({ seed: goodSeed(C(4, 3, 7), { live: { starts: [T_TW] } }), adv: 0 });
+  await ctx.boot({ seed: onSeed(C(4, 3, 7), { live: { starts: [T_TW] } }), adv: 0 });
   await ctx.adv(5000); await ctx.meta(M.youtube[0], "youtube");
   await ctx.adv(1000); await ctx.meta(M.twitch[0]);
   await ctx.adv(30000);
@@ -432,7 +435,7 @@ tc("TC-OCC-040", "猶予の中で未知 → 既知の順なら相方として記
   expect((await ctx.store()).live.starts).toEqual([T_TW, T_YT]);
 });
 tc("TC-OCC-041", "猶予の中で未知だけなら 20 秒の時点で戻る", async ctx => {
-  await ctx.boot({ seed: goodSeed(C(4, 3, 7), { live: { starts: [T_TW - 5 * HOUR] } }), adv: 0 });
+  await ctx.boot({ seed: onSeed(C(4, 3, 7), { live: { starts: [T_TW - 5 * HOUR] } }), adv: 0 });
   await ctx.adv(5000); await ctx.meta(M.twitch[0]);
   expect(await ctx.counts()).toEqual(C(4, 3, 7));
   await ctx.adv(16000);
@@ -440,7 +443,7 @@ tc("TC-OCC-041", "猶予の中で未知だけなら 20 秒の時点で戻る", a
   expect((await ctx.store()).live.starts).toEqual([T_TW]);
 });
 tc("TC-OCC-042", "自動リセット OFF の間はリセットせず記録だけ進む", async (ctx, page) => {
-  await ctx.boot({ seed: goodSeed(C(4, 3, 7)) });
+  await ctx.boot({ seed: onSeed(C(4, 3, 7)) });
   await page.uncheck("#togAutoReset");
   const m = mt(0, { startTime: T_TW + HOUR });
   await ctx.meta(m);
@@ -451,14 +454,14 @@ tc("TC-OCC-042", "自動リセット OFF の間はリセットせず記録だけ
   expect(await ctx.counts()).toEqual(C(4, 3, 7));
 });
 tc("TC-OCC-043", "日付をまたいでもあいさつは配信単位", async ctx => {
-  await ctx.boot();
+  await ctx.boot({ seed: onSeed() });
   await ctx.meta(M.twitch[0]); await ctx.com(normal());
   await ctx.adv(120000);
   await ctx.meta(M.twitch[0]); await ctx.com(withId(normal(), "tw-c-2"));
   expect((await ctx.counts()).greet).toBe(1);
 });
 tc("TC-OCC-044", "新しい配信ではあいさつを数え直す", async ctx => {
-  await ctx.boot();
+  await ctx.boot({ seed: onSeed() });
   await ctx.meta(M.twitch[0]); await ctx.com(normal());
   await ctx.adv(120000); await ctx.com(withId(normal(), "tw-c-2"));
   await ctx.adv(HOUR);
@@ -467,7 +470,7 @@ tc("TC-OCC-044", "新しい配信ではあいさつを数え直す", async ctx =
   expect(await ctx.counts()).toEqual(C(1, 0, 1));
 });
 tc("TC-OCC-045", "再接続中の meta ではリセットしない", async (ctx, page) => {
-  await ctx.boot();
+  await ctx.boot({ seed: onSeed() });
   await ctx.meta(M.twitch[0]); await ctx.com(normal());
   await ctx.meta(mt(0, { isReconnecting: true }));
   await ctx.emit("connected", false);
@@ -660,7 +663,7 @@ tc("TC-OCC-063", "通信先は決まった所だけ", async ctx => {
 });
 tc("TC-OCC-064", "版表示", async ctx => {
   await ctx.boot();
-  expect(await ctx.text("#ver")).toBe("v0.2.0");
+  expect(await ctx.text("#ver")).toBe("v0.2.1");
 });
 tc("TC-OCC-065", "設定とカウントは読み込み直しで残る", async (ctx, page) => {
   await ctx.boot();
@@ -676,4 +679,190 @@ tc("TC-OCC-065", "設定とカウントは読み込み直しで残る", async (c
   expect(await ctx.store()).toEqual(before);
   expect(await ui()).toBe(u1);
   expect(await ctx.counts()).toEqual(C(1, 0, 1));
+});
+
+/* ======================= 既定 OFF と名前(75〜89) ======================= */
+tc("TC-OCC-075", "既定は自動リセット OFF で、切り替えが保存される", async (ctx, page) => {
+  await ctx.boot();
+  expect(await page.isChecked("#togAutoReset")).toBe(false);
+  await page.check("#togAutoReset"); await page.uncheck("#togAutoReset");
+  expect((await ctx.store()).autoReset).toBe(false);
+});
+tc("TC-OCC-076", "既定 OFF では最初の meta でも戻らず、記録だけ進む", async ctx => {
+  await ctx.boot({ seed: goodSeed(C(4, 3, 7), { greeted: ["old-user"], followed: ["old-follow"], seenIds: ["old-id"] }) });
+  await ctx.meta(M.twitch[0]);
+  expect(await ctx.counts()).toEqual(C(4, 3, 7));
+  const st = await ctx.store();
+  expect(st.greeted).toEqual(["old-user"]); expect(st.followed).toEqual(["old-follow"]);
+  expect(st.live.starts).toEqual([T_TW]);
+});
+tc("TC-OCC-077", "既定 OFF では猶予の 20 秒を過ぎても戻らない", async ctx => {
+  await ctx.boot({ seed: goodSeed(C(4, 3, 7), { live: { starts: [T_TW - 5 * HOUR] } }), adv: 0 });
+  await ctx.adv(5000); await ctx.meta(M.twitch[0]);
+  await ctx.adv(16000);
+  expect(await ctx.counts()).toEqual(C(4, 3, 7));
+  expect((await ctx.store()).live.starts).toEqual([T_TW]);
+});
+tc("TC-OCC-078", "ON の保存値は ON のまま開き、meta で戻る", async (ctx, page) => {
+  await ctx.boot({ seed: onSeed(C(4, 3, 7)) });
+  expect(await page.isChecked("#togAutoReset")).toBe(true);
+  await ctx.meta(M.twitch[0]);
+  expect(await ctx.counts()).toEqual(C(0, 0, 0));
+});
+tc("TC-OCC-079", "autoReset:false の保存値は OFF のまま", async (ctx, page) => {
+  await ctx.boot({ seed: goodSeed(C(4, 3, 7), { autoReset: false }) });
+  await ctx.meta(M.twitch[0]);
+  expect(await page.isChecked("#togAutoReset")).toBe(false);
+  expect(await ctx.counts()).toEqual(C(4, 3, 7));
+});
+tc("TC-OCC-080", "autoReset が真偽値でない保存値は OFF になる", async (ctx, page) => {
+  for (const v of ["true", 1, null, {}]) {
+    await ctx.boot({ seed: goodSeed(C(4, 3, 7), { autoReset: v }) });
+    await ctx.meta(M.twitch[0]);
+    expect(await page.isChecked("#togAutoReset"), JSON.stringify(v)).toBe(false);
+    expect(await ctx.counts(), JSON.stringify(v)).toEqual(C(4, 3, 7));
+    expect(ctx.errs).toEqual([]);
+    await page.close();
+    page = await page.context().newPage();
+    ctx = makeCtx(page);
+  }
+});
+tc("TC-OCC-081", "0.1.0 の保存値からの移行でも OFF", async (ctx, page) => {
+  await ctx.boot({ seed: OLD() });
+  await ctx.meta(M.twitch[0]);
+  expect(await page.isChecked("#togAutoReset")).toBe(false);
+  expect(await ctx.counts()).toEqual(C(5, 3, 7));
+});
+tc("TC-OCC-082", "途中で ON にすると次の配信から戻る", async (ctx, page) => {
+  await ctx.boot();
+  await ctx.meta(mt(0)); await ctx.com(normal());
+  await page.check("#togAutoReset");
+  await ctx.meta(mt(0));
+  expect(await ctx.counts()).toEqual(C(1, 0, 1));
+  await ctx.adv(HOUR);
+  await ctx.meta(mt(0, { startTime: T_TW + HOUR }));
+  expect(await ctx.counts()).toEqual(C(0, 0, 0));
+});
+tc("TC-OCC-083", "自動リセットの切り替えは読み込み直しで残る", async (ctx, page) => {
+  await ctx.boot();
+  await page.check("#togAutoReset");
+  await ctx.reload();
+  expect(await page.isChecked("#togAutoReset")).toBe(true);
+  await page.uncheck("#togAutoReset");
+  await ctx.reload();
+  expect(await page.isChecked("#togAutoReset")).toBe(false);
+});
+tc("TC-OCC-084", "既定 OFF でも全リセットの後は 0 から数え直す", async (ctx, page) => {
+  await ctx.boot();
+  await ctx.meta(mt(0)); await ctx.com(normal());
+  await page.click("#btnReset"); await page.click("#btnResetYes");
+  expect(await ctx.counts()).toEqual(C(0, 0, 0));
+  await ctx.com(withId(normal(), "tw-c-2"));
+  expect(await ctx.counts()).toEqual(C(1, 0, 1));
+});
+tc("TC-OCC-085", "既定 OFF では次の配信になってもあいさつは 1 回", async ctx => {
+  await ctx.boot();
+  await ctx.meta(mt(0)); await ctx.com(normal());
+  await ctx.adv(HOUR);
+  await ctx.meta(mt(0, { startTime: T_TW + HOUR }));
+  await ctx.com(withId(normal(), "tw-c-2"));
+  expect(await ctx.counts()).toEqual(C(1, 0, 2));
+});
+tc("TC-OCC-086", "名前は Poko-ChatCount で、旧名は残っていない", async (ctx, page) => {
+  await ctx.boot();
+  expect(await page.title()).toContain("Poko-ChatCount");
+  expect(HTML).not.toContain("汎用カウンター");
+  expect(HTML).not.toContain("色々カウンター");
+});
+tc("TC-OCC-087", "保存キー・SDK の場所・旧キー・schema は変わらない", async () => {
+  expect(HTML).toContain('storageKey: "onecomme-generic-counter-v1"');
+  expect(HTML).toContain('sdkUrl: "http://localhost:11180/templates/preset/__origin/js/onesdk.js"');
+  expect(HTML).toContain('legacyKeys: ["onecomme-generic-counter-v1-probe"]');
+  expect(HTML).toContain("schema: 2");
+});
+const ROOT = path.resolve(__dirname, "..");
+const rd = f => fs.readFileSync(path.join(ROOT, f), "utf8");
+const VER = HTML.match(/version:\s*"([^"]+)"/)[1];
+tc("TC-OCC-088", "README・AGENTS・package・方針の名前と zip 名", async () => {
+  const readme = rd("README.md");
+  expect(readme).toContain("Poko-ChatCount");
+  expect(readme).toContain("`Poko-ChatCount-" + VER + ".zip`");
+  expect(readme).not.toContain("配信が始まると自動で 0 に戻ります");
+  expect(readme).not.toContain("onecomme-counter-0");
+  for (const f of ["AGENTS.md", "package.json", "docs/development/test-asset-lifecycle-policy.md"]) {
+    const t = rd(f);
+    expect(t, f).not.toContain("色々カウンター");
+    expect(t, f).toContain("Poko-ChatCount");
+  }
+});
+tc("TC-OCC-089", "package の名前と版が index.html と合っている", async () => {
+  const pk = JSON.parse(rd("package.json")), lk = JSON.parse(rd("package-lock.json"));
+  expect(pk.name).toBe("onecomme-counter-tests");
+  expect(pk.version).toBe(VER);
+  expect(lk.version).toBe(VER);
+  expect(lk.packages[""].version).toBe(VER);
+});
+
+/* ======================= 全リセットの確認欄・テーマの選択表示(95〜100) ======================= */
+const shown = (page, sel) => page.locator(sel).isVisible();
+const onThemes = page => page.evaluate(() => [...document.querySelectorAll("[data-theme].on")].map(b => b.dataset.theme));
+tc("TC-OCC-095", "全リセットを押すと確認欄が出て、まだ数は変わらない", async (ctx, page) => {
+  await ctx.boot();
+  expect(await shown(page, "#resetConfirm")).toBe(false);
+  await ctx.com(normal()); await ctx.sys(S("follow"));
+  await page.click("#btnReset");
+  expect(await shown(page, "#resetConfirm")).toBe(true);
+  expect(await ctx.text("#resetConfirm")).toContain("本当に 0 に戻しますか?");
+  expect(await ctx.counts()).toEqual(C(1, 1, 1));
+});
+tc("TC-OCC-096", "確認欄で「やめる」を押すと何も変わらない", async (ctx, page) => {
+  await ctx.boot();
+  await ctx.com(normal());
+  await page.click("#btnReset"); await page.click("#btnResetNo");
+  expect(await shown(page, "#resetConfirm")).toBe(false);
+  expect(await ctx.counts()).toEqual(C(1, 0, 1));
+  await ctx.com(withId(normal(), "tw-c-2"));
+  expect(await ctx.counts()).toEqual(C(1, 0, 2));
+});
+tc("TC-OCC-097", "確認欄で「0 に戻す」を押すと 0 に戻り設定は残る", async (ctx, page) => {
+  await ctx.boot({ seed: onSeed() });
+  await ctx.meta(mt(0));
+  await ctx.fill("#inTitle", "保持確認97");
+  await ctx.com(normal()); await ctx.sys(S("follow"));
+  const starts = (await ctx.store()).live.starts;
+  expect(starts.length).toBeGreaterThan(0);
+  await page.click("#btnReset"); await page.click("#btnResetYes");
+  expect(await shown(page, "#resetConfirm")).toBe(false);
+  expect(await ctx.counts()).toEqual(C(0, 0, 0));
+  const st = await ctx.store();
+  expect(st.title).toBe("保持確認97");
+  expect(st.live.starts).toEqual(starts);
+  await ctx.reload();
+  expect(await ctx.counts()).toEqual(C(0, 0, 0));
+  expect(await shown(page, "#resetConfirm")).toBe(false);
+});
+tc("TC-OCC-098", "画面が confirm・alert・prompt を使っていない", async () => {
+  expect(HTML).not.toMatch(/\b(confirm|alert|prompt)\s*\(/);
+});
+tc("TC-OCC-099", "押したテーマのボタンだけ色が付き、開き直しても残る", async (ctx, page) => {
+  await ctx.boot();
+  expect(await onThemes(page)).toEqual(["ピンク"]);
+  const names = await page.evaluate(() => [...document.querySelectorAll("[data-theme]")].map(b => b.dataset.theme));
+  expect(names.length).toBeGreaterThan(1);
+  for (const n of names) {
+    await page.click(`[data-theme="${n}"]`);
+    expect(await onThemes(page), n).toEqual([n]);
+  }
+  await page.click('[data-theme="宇宙猫"]'); await page.click('[data-theme="ブルー"]');
+  await ctx.reload();
+  expect(await onThemes(page)).toEqual(["ブルー"]);
+});
+tc("TC-OCC-100", "どのテーマとも一致しない色ならどれにも付かず、選択色はピンク", async (ctx, page) => {
+  await ctx.boot({ seed: goodSeed(C(0, 0, 0), { colors: { bg: "#123456" } }) });
+  expect(await onThemes(page)).toEqual([]);
+  await page.click('[data-theme="ミント"]');
+  const bg = sel => page.locator(sel).first().evaluate(e => getComputedStyle(e).backgroundColor);
+  expect(await bg('[data-theme="ミント"]')).toBe("rgb(255, 98, 201)");
+  expect(await ctx.active("#status")).toBe("ok");
+  expect(await bg("#status")).toBe("rgb(63, 195, 128)");
 });

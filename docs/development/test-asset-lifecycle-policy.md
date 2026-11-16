@@ -4,9 +4,9 @@
 
 | 項目 | 内容 |
 |---|---|
-| repo | 色々カウンター(わんコメ用テンプレート)(`onecomme-counter`) |
+| repo | Poko-ChatCount。わんコメ用テンプレート(`onecomme-counter`) |
 | base branch | `main` |
-| バージョン正本 | git tag `vX.Y.Z`(現在 v0.2.0) |
+| バージョン正本 | git tag `vX.Y.Z`(現在 v0.2.1) |
 | テスト実行手段 | `tests/`(Playwright・模擬 SDK を `page.route` で差し替え。`npm test`)で mock 試験を自動実行する。わんコメ / OBS での手動確認は test-case master(manual)として登録する |
 | QA 成果物の置き場 | `docs/development/` 配下(drbfm / test-cases / evidence / qa-review / dev-intent / test-inventory)。配置規約は SQA `docs/integrations/target-repositories.md` |
 

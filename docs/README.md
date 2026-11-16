@@ -12,5 +12,7 @@
 - [dev-intent/](development/dev-intent/README.md) — 開発意図ログ(チケット単位)
 - [test-inventory/](development/test-inventory/README.md) — 試験観点台帳・棚卸報告
 - [drbfm/](development/drbfm/20261115-follow-count-stream-reset.md) — DRBFM(チケット単位。follow-count: フォローの数え方と配信開始リセット)
-- [test-cases/master/](development/test-cases/master/onecomme-counter.yaml) — test-case master(TC-OCC-001〜074。mock 65 件・manual 9 件)
+- [drbfm/](development/drbfm/20261116-poko-chatcount-rename-autoreset-off.md) — DRBFM(poko-chatcount: 名前の変更と自動リセットの既定 OFF)
+- [test-cases/master/](development/test-cases/master/onecomme-counter.yaml) — test-case master(TC-OCC-001〜094。mock 80 件・manual 14 件)
 - [evidence/](development/evidence/follow-count/evidence-index.md) — 証跡(チケット単位。follow-count の mock 試験結果・実機待ちの記録)
+- [evidence/](development/evidence/poko-chatcount/evidence-index.md) — 証跡(poko-chatcount の mock 試験結果・実機待ちの記録)
